@@ -1,7 +1,8 @@
 import User from "../../models/User.js";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import config from "../../config/config.js";
+import generateToken from "../../utils/generateToken.js";
+// import jwt from "jsonwebtoken";
+// import config from "../../config/config.js";
 
 // Register User
 export const register = async (req, res) => {
@@ -29,8 +30,9 @@ export const register = async (req, res) => {
         await newUser.save();
 
         // Create jwt Token
-        const token = jwt.sign({ id: newUser._id }, config.jwtSecret, { expiresIn: "1h" });
+        // const token = jwt.sign({ id: newUser._id }, config.jwtSecret, { expiresIn: "1h" });
         
+        const token = generateToken(user._id);
         res.status(201).json({
             message: "User registered successfully",
             user: {
@@ -53,7 +55,6 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
     try {
         const { email, password } = req.body;
-
         const user = await User.findOne({ email }).select("+password");
 
         if (!user) {
@@ -73,8 +74,9 @@ export const login = async (req, res) => {
         }
 
         // Create JWT Token
-        const token = jwt.sign({ id: user._id }, config.jwtSecret, { expiresIn: "1h" });
+        // const token = jwt.sign({ id: user._id }, config.jwtSecret, { expiresIn: "1h" });
 
+        const token = generateToken();
         res.status(200).json({
             message: "Logged in successfully",
             user: {

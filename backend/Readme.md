@@ -190,8 +190,64 @@ Both endpoints return a JWT token and user info on success.
 
 ---
 
-## License
+## JWT Token Generation and Usage
 
-This project is licensed under the ISC License.
+### What is Happening?
+
+- **`src/utils/generateToken.js`**  
+  This file exports a function that creates a JWT token using the user's MongoDB `_id` as payload.  
+  It uses the secret from your config and sets the token to expire in 1 hour.
+
+  ```js
+  import jwt from "jsonwebtoken";
+  import config from "../config/config.js";
+
+  const generateToken = (id) => {
+      return jwt.sign({ id }, config.jwtSecret, { expiresIn: "1h" });
+  };
+
+  export default generateToken;
+  ```
+
+- **`src/api/controllers/authController.js`**  
+  - **Register:**  
+    - Receives user data, checks if the user exists, hashes the password, saves the user, and generates a JWT token using `generateToken(newUser._id)`.
+    - **Correction:** The code should use `newUser._id` instead of `user._id` when calling `generateToken` after registration.
+  - **Login:**  
+    - Checks credentials, compares password, and generates a JWT token using `generateToken(user._id)`.
+    - **Correction:** The code should pass `user._id` to `generateToken` instead of calling it with no arguments.
+
+### DRY (Don't Repeat Yourself) Improvements
+
+- Always use the `generateToken` utility for token creation.
+- Pass the correct user ID (`newUser._id` or `user._id`) to `generateToken`.
+- Remove commented-out or duplicate JWT code for clarity.
+
+### What to Change in Your Code
+
+**In `authController.js`, update the following:**
+
+```javascript
+// filepath: e:\projects\Uber\backend\src\api\controllers\authController.js
+// ...existing code...
+
+// In register:
+const token = generateToken(newUser._id);
+
+// In login:
+const token = generateToken(user._id);
+
+// ...existing code...
+```
+
+**Remove any unused or commented-out JWT code to keep things clean.**
+
+---
+
+## Summary
+
+- JWT tokens are generated in a single utility function for both registration and login.
+- Always pass the user's `_id` to `generateToken` for correct payload.
+- This keeps your code DRY, secure, and easy to maintain.
 
 ---
