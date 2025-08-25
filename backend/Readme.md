@@ -305,6 +305,48 @@ Both endpoints return a JWT token and user info on success.
 
 ---
 
+## Global Error Handler Middleware
+
+### What Was Done
+
+- **Added Centralized Error Handling:**  
+  Implemented a global error handler middleware in `src/api/middlewares/globalErrorHandler.js`.  
+  This middleware catches errors from all routes and controllers, and sends a consistent error response to the client.
+
+  ```js
+  import config from "../../config/config.js";
+
+  const globalErrorHandler = (err, req, res, next) => {
+      const statusCode = err.statusCode || 500;
+      res.status(statusCode).json({
+        message: err.message,
+        errorStack:
+          config.env === "development" ? err.stack : "Something went Wrong.",
+      });
+  };
+
+  export default globalErrorHandler;
+  ```
+
+- **Integrated in Express App:**  
+  In `src/app.js`, the middleware is added at the end of all routes:
+  ```js
+  app.use(globalErrorHandler);
+  ```
+
+### Why?
+
+- **Consistency:**  
+  Ensures all errors are handled in one place and responses have a uniform structure.
+- **Security:**  
+  Hides sensitive error stack traces in production, but shows them in development for easier debugging.
+- **Maintainability:**  
+  Makes it easy to manage and update error handling logic in a single file.
+
+---
+
+**This approach improves reliability, security, and developer experience**
+
 ## Summary of Changes
 
 - Centralized all configuration in one file for security and maintainability.

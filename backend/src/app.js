@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import authRoutes from "./api/routes/authRoutes.js"
 import captainRoutes from "./api/routes/captainRoutes.js";
+import globalErrorHandler from "./api/middlewares/globalErrorHandler.js";
 
 const app = express();
 app.use(cors());
@@ -24,5 +25,8 @@ app.get("/", (req, res) => {
         });
     };
 });
+
+
+app.use(globalErrorHandler);
 
 export default app;
