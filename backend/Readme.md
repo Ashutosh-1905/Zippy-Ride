@@ -1,4 +1,3 @@
-
 # Uber Backend
 
 A Node.js backend for user authentication using Express, MongoDB (Mongoose), JWT, and bcrypt.
@@ -190,13 +189,12 @@ Both endpoints return a JWT token and user info on success.
 
 ---
 
-## JWT Token Generation and Usage
+## JWT Token Generation and DRY Improvements
 
 ### What is Happening?
 
-- **`src/utils/generateToken.js`**  
-  This file exports a function that creates a JWT token using the user's MongoDB `_id` as payload.  
-  It uses the secret from your config and sets the token to expire in 1 hour.
+- **Centralized JWT Token Creation:**  
+  A utility function `generateToken` was created in `src/utils/generateToken.js` to handle JWT token generation. This function takes a user’s MongoDB `_id` and signs it with the secret from your config, setting an expiry of 1 hour.
 
   ```js
   import jwt from "jsonwebtoken";
@@ -209,45 +207,34 @@ Both endpoints return a JWT token and user info on success.
   export default generateToken;
   ```
 
-- **`src/api/controllers/authController.js`**  
-  - **Register:**  
-    - Receives user data, checks if the user exists, hashes the password, saves the user, and generates a JWT token using `generateToken(newUser._id)`.
-    - **Correction:** The code should use `newUser._id` instead of `user._id` when calling `generateToken` after registration.
-  - **Login:**  
-    - Checks credentials, compares password, and generates a JWT token using `generateToken(user._id)`.
-    - **Correction:** The code should pass `user._id` to `generateToken` instead of calling it with no arguments.
+- **Applied DRY Principle in Auth Logic:**  
+  In both registration and login flows (`src/api/services/userService.js`), the `generateToken` utility is used to create the JWT token, always passing the correct user ID (`newUser._id` or `user._id`).  
+  This avoids code duplication and ensures consistent token creation.
 
-### DRY (Don't Repeat Yourself) Improvements
+  ```js
+  // Register User
+  const token = generateToken(newUser._id);
 
-- Always use the `generateToken` utility for token creation.
-- Pass the correct user ID (`newUser._id` or `user._id`) to `generateToken`.
-- Remove commented-out or duplicate JWT code for clarity.
+  // Login User
+  const token = generateToken(user._id);
+  ```
 
-### What to Change in Your Code
+- **Controller Usage:**  
+  The controllers (`src/api/controllers/authController.js`) simply receive the token and user object from the service and return them in the API response.
 
-**In `authController.js`, update the following:**
+### Why This Matters
 
-```javascript
-// filepath: e:\projects\Uber\backend\src\api\controllers\authController.js
-// ...existing code...
+- **Security:**  
+  Ensures that only the user’s unique ID is included in the JWT payload, signed securely.
+- **Maintainability:**  
+  Any changes to token logic (expiry, payload, etc.) can be made in one place (`generateToken.js`).
+- **Clarity:**  
+  Keeps controller and service code clean and focused on business logic, not token mechanics.
 
-// In register:
-const token = generateToken(newUser._id);
+### Summary
 
-// In login:
-const token = generateToken(user._id);
-
-// ...existing code...
-```
-
-**Remove any unused or commented-out JWT code to keep things clean.**
-
----
-
-## Summary
-
-- JWT tokens are generated in a single utility function for both registration and login.
-- Always pass the user's `_id` to `generateToken` for correct payload.
-- This keeps your code DRY, secure, and easy to maintain.
+- JWT token generation is handled in a single utility function.
+- All authentication flows use this function, passing the correct user ID.
+- The code is DRY, secure, and easy to maintain.
 
 ---

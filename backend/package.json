@@ -16,6 +16,7 @@
     "bcrypt": "^6.0.0",
     "config": "^4.1.1",
     "cors": "^2.8.5",
+    "cortxt": "^1.0.6",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "http": "^0.0.1-security",
