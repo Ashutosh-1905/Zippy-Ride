@@ -14,6 +14,10 @@ A Node.js backend for user authentication using Express, MongoDB (Mongoose), JWT
 - [Code Overview](#code-overview)
 - [How Authentication Works](#how-authentication-works)
 - [Extending the Project](#extending-the-project)
+- [JWT Token Generation and DRY Improvements](#jwt-token-generation-and-dry-improvements)
+- [Configuration Management](#configuration-management)
+- [Captain (Driver) Module](#captain-driver-module)
+- [Summary of Changes](#summary-of-changes)
 
 ---
 
@@ -40,7 +44,7 @@ A Node.js backend for user authentication using Express, MongoDB (Mongoose), JWT
     │   ├── config.js
     │   └── connectDb.js
     └── models
-        ├── Capton.js
+        ├── Captain.js
         └── User.js
 ```
 
@@ -191,7 +195,7 @@ Both endpoints return a JWT token and user info on success.
 
 ## JWT Token Generation and DRY Improvements
 
-### What is Happening?
+### What Was Done
 
 - **Centralized JWT Token Creation:**  
   A utility function `generateToken` was created in `src/utils/generateToken.js` to handle JWT token generation. This function takes a user’s MongoDB `_id` and signs it with the secret from your config, setting an expiry of 1 hour.
@@ -239,40 +243,7 @@ Both endpoints return a JWT token and user info on success.
 
 ---
 
-## Captain (Driver) Module
-
-### What Was Done
-
-- **Captain Model:**  
-  Added `src/models/Captain.js` to define the schema for captains (drivers), including personal info, vehicle details, status, and location.
-- **Captain Service:**  
-  Added `src/api/services/captainService.js` for business logic to register and login captains, including password hashing and credential checks.
-- **Captain Controller:**  
-  Added `src/api/controllers/captainController.js` to handle HTTP requests for captain registration and login.
-- **Captain Routes:**  
-  Added `src/api/routes/captainRoutes.js` to define `/register` and `/login` endpoints for captains.
-- **App Integration:**  
-  Updated `src/app.js` to use `/api/v1/captains` route for captain-related endpoints.
-
-#### Why?
-
-- **Separation of Concerns:**  
-  Keeps captain (driver) logic separate from user (rider) logic for clarity and scalability.
-- **Extensibility:**  
-  Makes it easy to add more features for captains (like trip management, location updates, etc.) in the future.
-- **Security:**  
-  Ensures captain passwords are hashed and credentials are validated securely.
-
----
-
-## Summary of Changes
-
-- Added a complete Captain (driver) module with model, service, controller, and routes.
-- Integrated captain routes into the main app.
-- Followed best practices for code organization, DRY principles, and security.
-
----
-```## Configuration Management
+## Configuration Management
 
 ### What Was Done
 
@@ -336,6 +307,7 @@ Both endpoints return a JWT token and user info on success.
 
 ## Summary of Changes
 
+- Centralized all configuration in one file for security and maintainability.
 - Added a complete Captain (driver) module with model, service, controller, and routes.
 - Integrated captain routes into the main app.
-- Followed best practices for code organization, DRY principles
+- Followed best practices for code organization, DRY principles, and
