@@ -238,3 +238,104 @@ Both endpoints return a JWT token and user info on success.
 - The code is DRY, secure, and easy to maintain.
 
 ---
+
+## Captain (Driver) Module
+
+### What Was Done
+
+- **Captain Model:**  
+  Added `src/models/Captain.js` to define the schema for captains (drivers), including personal info, vehicle details, status, and location.
+- **Captain Service:**  
+  Added `src/api/services/captainService.js` for business logic to register and login captains, including password hashing and credential checks.
+- **Captain Controller:**  
+  Added `src/api/controllers/captainController.js` to handle HTTP requests for captain registration and login.
+- **Captain Routes:**  
+  Added `src/api/routes/captainRoutes.js` to define `/register` and `/login` endpoints for captains.
+- **App Integration:**  
+  Updated `src/app.js` to use `/api/v1/captains` route for captain-related endpoints.
+
+#### Why?
+
+- **Separation of Concerns:**  
+  Keeps captain (driver) logic separate from user (rider) logic for clarity and scalability.
+- **Extensibility:**  
+  Makes it easy to add more features for captains (like trip management, location updates, etc.) in the future.
+- **Security:**  
+  Ensures captain passwords are hashed and credentials are validated securely.
+
+---
+
+## Summary of Changes
+
+- Added a complete Captain (driver) module with model, service, controller, and routes.
+- Integrated captain routes into the main app.
+- Followed best practices for code organization, DRY principles, and security.
+
+---
+```## Configuration Management
+
+### What Was Done
+
+- **Centralized Configuration:**  
+  The file `src/config/config.js` was created to manage all environment-based configuration for the backend.  
+  It loads environment variables using `dotenv` and exposes them as a frozen config object, making them accessible throughout the project.
+
+  ```js
+  import { config as conf } from "dotenv";
+  conf();
+
+  const _config = {
+      port: process.env.SERVER_PORT,
+      databaseUrl: process.env.MONGODB_URI,
+      env: process.env.NODE_ENV,
+      frontendUrl: process.env.FRONTEND_URL,
+      jwtSecret: process.env.JWT_SECRET
+  };
+
+  const config = Object.freeze(_config);
+
+  export default config;
+  ```
+
+#### Why?
+
+- **Security:**  
+  Sensitive values (like database URI and JWT secret) are not hardcoded, but loaded from environment variables.
+- **Maintainability:**  
+  All configuration is managed in one place, making it easy to update or extend.
+- **Best Practices:**  
+  Using `Object.freeze` ensures configuration values cannot be changed at runtime, preventing accidental mutations.
+
+---
+
+## Captain (Driver) Module
+
+### What Was Done
+
+- **Captain Model:**  
+  Added `src/models/Captain.js` to define the schema for captains (drivers), including personal info, vehicle details, status, and location.
+- **Captain Service:**  
+  Added `src/api/services/captainService.js` for business logic to register and login captains, including password hashing and credential checks.
+- **Captain Controller:**  
+  Added `src/api/controllers/captainController.js` to handle HTTP requests for captain registration and login.
+- **Captain Routes:**  
+  Added `src/api/routes/captainRoutes.js` to define `/register` and `/login` endpoints for captains.
+- **App Integration:**  
+  Updated `src/app.js` to use `/api/v1/captains` route for captain-related endpoints.
+
+#### Why?
+
+- **Separation of Concerns:**  
+  Keeps captain (driver) logic separate from user (rider) logic for clarity and scalability.
+- **Extensibility:**  
+  Makes it easy to add more features for captains (like trip management, location updates, etc.) in the future.
+- **Security:**  
+  Ensures captain passwords are hashed and credentials are validated securely.
+
+---
+
+## Summary of Changes
+
+- Added a complete Captain (driver) module with model, service, controller, and routes.
+- Integrated captain routes into the main app.
+- Followed best practices for code organization, DRY principles

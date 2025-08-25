@@ -1,90 +1,42 @@
-import Captain from "../../models/Captain.js";
 import bcrypt from "bcrypt";
-import generateToken from "../../utils/generateToken.js";
+import Captain from "../../models/Captain.js";
 
-export const register = async (req, res) => {
-  try {
-    const {
-      firstName,
-      lastName,
-      email,
-      password,
-      color,
-      plate,
-      capacity,
-      vehicleType,
-    } = req.body;
-
-    const existingCaptain = await Captain.findOne({ email });
-    if (existingCaptain) {
-      return res.status(400).json({
-        message: "Captain already exists with this email.",
-      });
-    }
-
-    const newCaptain = new Captain({
-      firstName,
-      lastName,
-      email,
-      password, // Mongoose pre-save hook can hash the password
-      vehicle: {
-        color,
-        plate,
-        capacity,
-        vehicleType,
-      },
-    });
-
-    const hashedPassword = await bcrypt.hash(newCaptain.password, 10);
-    newCaptain.password = hashedPassword;
-
-    await newCaptain.save();
-
-    const token = generateToken(newCaptain._id);
-    res.status(201).json({
-      message: "Captain registered successfully",
-      captain: {
-        id: newCaptain._id,
-        firstName: newCaptain.firstName,
-        email: newCaptain.email,
-      },
-      token,
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
+// Register Captain
+export const registerCaptain = async (captainData) => {
+  const existingCaptain = await Captain.findOne({ email: captainData.email });
+  if (existingCaptain) {
+    throw new Error("A captain with this email already exists.");
   }
+
+  const saltRounds = 10;
+  const hashedPassword = await bcrypt.hash(captainData.password, saltRounds);
+
+  const newCaptain = new Captain({
+    firstName: captainData.firstName,
+    lastName: captainData.lastName,
+    email: captainData.email,
+    password: hashedPassword,
+    vehicle: captainData.vehicle,
+  });
+
+  await newCaptain.save();
+
+  return newCaptain;
 };
 
-export const login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
+// Login Captain
+export const loginCaptain = async (email, password) => {
+  const captain = await Captain.findOne({ email }).select("+password");
 
-    const captain = await Captain.findOne({ email }).select("+password");
-    if (!captain) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
-
-    const isMatch = await bcrypt.compare(password, captain.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
-
-    const token = generateToken(captain._id);
-
-    res.status(200).json({
-      message: "Logged in successfully",
-      captain: {
-        id: captain._id,
-        firstName: captain.firstName,
-        email: captain.email,
-      },
-      token,
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  if (!captain) {
+    throw new Error("Invalid Credentials");
   }
+
+  const isMatch = await bcrypt.compare(password, captain.password);
+
+  if (!isMatch) {
+    throw new Error("Invalid Credentials");
+  }
+
+  return captain;
 };
-
-
