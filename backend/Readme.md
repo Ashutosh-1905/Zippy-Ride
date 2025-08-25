@@ -24,30 +24,26 @@ A Node.js backend for user authentication using Express, MongoDB (Mongoose), JWT
 ## Project Structure
 
 ```
-.
-├── .env
-├── .env.example
-├── .gitignore
-├── package.json
-├── Readme.md
-├── server.js
-└── src
-    ├── app.js
-    ├── api
-    │   ├── controllers
-    │   │   └── authController.js
-    │   ├── middlewares
-    │   │   └── authMiddleware.js
-    │   └── routes
-    │       └── authRoutes.js
-    ├── config
-    │   ├── config.js
-    │   └── connectDb.js
-    └── models
-        ├── Captain.js
-        └── User.js
+📁 backend/
+├── 📄 Readme.md
+├── 📄 package.json
+├── 📄 server.js
+└── 📁 src
+    ├── 📁 api
+    │   ├── 📁 controllers
+    │   ├── 📁 middlewares
+    │   ├── 📁 routes
+    │   └── 📁 services
+    ├── 📄 app.js
+    ├── 📁 config
+    │   ├── 📄 config.js
+    │   └── 📄 connectDb.js
+    ├── 📁 models
+    │   ├── 📄 Captain.js
+    │   └── 📄 User.js
+    └── 📁 utils
+        └── 📄 generateToken.js
 ```
-
 ---
 
 ## Environment Variables
