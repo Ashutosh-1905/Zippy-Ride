@@ -56,7 +56,7 @@ A Node.js backend for user authentication using Express, MongoDB (Mongoose), JWT
     └── 📁 utils
         ├── 📄 catchAsync.js
         └── 📄 generateToken.js
-        
+
 
 ```
 ---
@@ -474,3 +474,4 @@ Both endpoints return a JWT token and user info on success.
 ---
 
 **This approach ensures robust and secure user input validation for your API endpoints.**
+

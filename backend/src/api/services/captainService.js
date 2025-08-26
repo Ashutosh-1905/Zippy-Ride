@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import Captain from "../../models/Captain.js";
+import generateToken from "../../utils/generateToken.js";
 
 export const registerCaptain = async (captainData) => {
   const existingCaptain = await Captain.findOne({ email: captainData.email });
@@ -38,5 +39,7 @@ export const loginCaptain = async (email, password) => {
     throw new Error("Invalid Credentials");
   }
 
-  return captain;
+  const token = generateToken(captain._id);
+
+  return { captain , token};
 };
