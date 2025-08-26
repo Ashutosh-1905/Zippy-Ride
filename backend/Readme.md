@@ -395,3 +395,67 @@ Both endpoints return a JWT token and user info on success.
 ---
 
 **This pattern is a best practice for robust and maintainable Express.js applications using async/await.**
+
+
+
+## User Input Validation Middleware
+
+### What Was Done
+
+- **Added User Registration Validation:**  
+  Created `src/api/middlewares/validation/userValidation.js` to validate user input during registration using `express-validator`.
+  - Checks that `firstName` is not empty.
+  - Ensures `email` is a valid email address.
+  - Ensures `password` is at least 6 characters long.
+
+  ```js
+  import { body, validationResult } from "express-validator";
+
+  export const validateUserRegistration = [
+    body("firstName").notEmpty().withMessage("First name is required"),
+    body("email").isEmail().withMessage("Invalid email address"),
+    body("password")
+      .isLength({ min: 6 })
+      .withMessage("Password must be at least 6 characters"),
+  ];
+  ```
+
+- **Added Validation Error Handler:**  
+  The `handleValidationErrors` middleware checks for validation errors and returns a 400 response with error details if any are found.
+
+  ```js
+  export const handleValidationErrors = (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    next();
+  };
+  ```
+
+- **Usage:**  
+  These middlewares should be used in the registration route to ensure only valid data is processed.
+
+  ```js
+  import { validateUserRegistration, handleValidationErrors } from "../middlewares/validation/userValidation.js";
+
+  router.post(
+    "/register",
+    validateUserRegistration,
+    handleValidationErrors,
+    registerController
+  );
+  ```
+
+### Why?
+
+- **Data Integrity:**  
+  Prevents invalid or incomplete data from being saved to the database.
+- **Security:**  
+  Reduces risk of malformed input and potential security vulnerabilities.
+- **User Experience:**  
+  Provides clear error messages to the client when input is invalid.
+
+---
+
+**This approach ensures robust and secure user input validation for your API endpoints.**
