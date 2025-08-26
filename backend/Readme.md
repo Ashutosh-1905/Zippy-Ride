@@ -24,6 +24,7 @@ A Node.js backend for user authentication using Express, MongoDB (Mongoose), JWT
 ## Project Structure
 
 ```
+
 📁 backend/
 ├── 📄 Readme.md
 ├── 📄 package.json
@@ -31,9 +32,20 @@ A Node.js backend for user authentication using Express, MongoDB (Mongoose), JWT
 └── 📁 src
     ├── 📁 api
     │   ├── 📁 controllers
+    │   │   ├── 📄 authController.js
+    │   │   └── 📄 captainController.js
     │   ├── 📁 middlewares
+    │   │   ├── 📄 authMiddleware.js
+    │   │   ├── 📄 globalErrorHandler.js
+    │   │   └── 📁 validation
+    │   │       └── 📄 userValidation.js
     │   ├── 📁 routes
+    │   │   ├── 📄 authRoutes.js
+    │   │   └── 📄 captainRoutes.js
     │   └── 📁 services
+    │       ├── 📄 captainService.js
+    │       ├── 📄 rideService.js
+    │       └── 📄 userService.js
     ├── 📄 app.js
     ├── 📁 config
     │   ├── 📄 config.js
@@ -42,7 +54,10 @@ A Node.js backend for user authentication using Express, MongoDB (Mongoose), JWT
     │   ├── 📄 Captain.js
     │   └── 📄 User.js
     └── 📁 utils
+        ├── 📄 catchAsync.js
         └── 📄 generateToken.js
+        
+
 ```
 ---
 
