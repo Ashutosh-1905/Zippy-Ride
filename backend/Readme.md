@@ -349,3 +349,49 @@ Both endpoints return a JWT token and user info on success.
 - Added a complete Captain (driver) module with model, service, controller, and routes.
 - Integrated captain routes into the main app.
 - Followed best practices for code organization, DRY principles, and
+
+
+## Async Error Handling Utility
+
+### What Was Done
+
+- **Created `catchAsync` Utility:**  
+  Added `src/utils/catchAsync.js` to simplify error handling in asynchronous route handlers and controllers.  
+  This higher-order function wraps async functions and automatically forwards any errors to the global error handler middleware.
+
+  ```js
+  const catchAsync = (fn) => (req, res, next) => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  };
+
+  export default catchAsync;
+  ```
+
+- **Applied in Controllers:**  
+  In `src/api/controllers/authController.js`, all controller functions (`register`, `login`) are wrapped with `catchAsync`.  
+  This ensures that any errors thrown in these async functions are caught and passed to the global error handler, avoiding repetitive try-catch blocks.
+
+  ```js
+  import catchAsync from "../../utils/catchAsync.js";
+
+  export const register = catchAsync(async (req, res, next) => {
+    // ...registration logic...
+  });
+
+  export const login = catchAsync(async (req, res, next) => {
+    // ...login logic...
+  });
+  ```
+
+### Why?
+
+- **Cleaner Code:**  
+  Removes the need for repetitive try-catch blocks in every async controller.
+- **Centralized Error Handling:**  
+  Ensures all errors are consistently handled by the global error handler.
+- **Maintainability:**  
+  Makes controllers easier to read and maintain.
+
+---
+
+**This pattern is a best practice for robust and maintainable Express.js applications using async/await.**
