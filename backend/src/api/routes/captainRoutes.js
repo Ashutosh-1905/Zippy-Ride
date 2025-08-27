@@ -1,10 +1,11 @@
 import { Router } from "express";
-import { loginCaptain, registerCaptain } from "../controllers/captainController.js";
 
+import { handleValidationErrors, validateCaptainRegistration } from "../middlewares/validation/captainValidation.js";
+import { login, register } from "../controllers/captainController.js";
 
 const router = Router();
 
-router.post("/register", registerCaptain);
-router.post("/login", loginCaptain);
+router.post("/register", validateCaptainRegistration, handleValidationErrors, register);
+router.post("/login", handleValidationErrors, login);
 
 export default router;

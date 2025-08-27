@@ -11,6 +11,6 @@ router.post(
   register
 );
 
-router.post("/login", login);
+router.post("/login", handleValidationErrors, login);
 
 export default router;

@@ -57,7 +57,6 @@ A Node.js backend for user authentication using Express, MongoDB (Mongoose), JWT
         ├── 📄 catchAsync.js
         └── 📄 generateToken.js
 
-
 ```
 ---
 
@@ -475,3 +474,110 @@ Both endpoints return a JWT token and user info on success.
 
 **This approach ensures robust and secure user input validation for your API endpoints.**
 
+
+## Validation Middleware for Users and Captains
+
+### What Was Done
+
+- **User Validation:**  
+  Added `src/api/middlewares/validation/userValidation.js` to validate user registration input using `express-validator`.  
+  Ensures required fields are present and valid before proceeding to controller logic.
+
+  - `validateUserRegistration`: Checks for non-empty first name, valid email, and password length.
+  - `handleValidationErrors`: Sends a 400 response with error details if validation fails.
+
+- **Captain Validation:**  
+  (If implemented similarly) You can add a similar validation middleware for captain registration, e.g., `captainValidation.js`, to ensure captains provide valid data.
+
+- **Usage Example:**  
+  These validation middlewares are used in the registration routes for both users and captains, ensuring only valid data reaches the business logic.
+
+  ```js
+  router.post(
+    "/register",
+    validateUserRegistration,
+    handleValidationErrors,
+    registerController
+  );
+  ```
+
+---
+
+## Async Error Handling
+
+- **catchAsync Utility:**  
+  Added `src/utils/catchAsync.js` to wrap async controller functions.  
+  This automatically forwards errors to the global error handler, removing the need for repetitive try-catch blocks in controllers.
+
+  - Usage in controllers:
+    ```js
+    export const register = catchAsync(async (req, res, next) => {
+      // ...logic...
+    });
+    ```
+
+---
+
+## Global Error Handler
+
+- **Centralized Error Handling:**  
+  Added `src/api/middlewares/globalErrorHandler.js` and integrated it in `src/app.js`.  
+  This middleware catches all errors from routes/controllers and sends a consistent error response.  
+  In development, it shows the stack trace; in production, it hides sensitive details.
+
+  - Usage in app:
+    ```js
+    app.use(globalErrorHandler);
+    ```
+
+---
+
+## JWT Token Generation
+
+- **generateToken Utility:**  
+  Added `src/utils/generateToken.js` to centralize JWT token creation.  
+  Used in both user and captain registration/login flows to generate tokens with the user's or captain's ID.
+
+---
+
+## Captain (Driver) Module
+
+- **Model, Service, Controller, and Routes:**  
+  Added a complete set of files for captain (driver) registration and login:
+  - `src/models/Captain.js`
+  - `src/api/services/captainService.js`
+  - `src/api/controllers/captainController.js`
+  - `src/api/routes/captainRoutes.js`
+  - Integrated in `src/app.js` as `/api/v1/captains`
+
+---
+
+## API Structure and Versioning
+
+- **Versioned API Paths:**  
+  Updated `src/app.js` to use `/api/v1/users` and `/api/v1/captains` for better organization and future scalability.
+
+- **Welcome Route:**  
+  Added a root route (`/`) that returns a welcome message for basic health checks.
+
+---
+
+## Configuration Management
+
+- **Centralized Config:**  
+  All environment variables are loaded and frozen in `src/config/config.js` for secure and maintainable configuration management.
+
+---
+
+## Summary
+
+- Added robust validation for user and captain registration.
+- Centralized async error handling and global error responses.
+- Modularized JWT token generation.
+- Separated user and captain logic for clarity and scalability.
+- Improved API structure with versioning and a welcome route.
+- Centralized configuration for security and maintainability.
+
+---
+
+**These changes make the backend more secure, maintainable, and ready for future features.**

@@ -1,42 +1,31 @@
-import bcrypt from "bcrypt";
-import Captain from "../../models/Captain.js";
+import { registerCaptain, loginCaptain } from "../services/captainService.js";
+import catchAsync from "../../utils/catchAsync.js";
 
-// Register Captain
-export const registerCaptain = async (captainData) => {
-  const existingCaptain = await Captain.findOne({ email: captainData.email });
-  if (existingCaptain) {
-    throw new Error("A captain with this email already exists.");
-  }
+export const register = catchAsync(async (req, res, next) => {
+  const { newCaptain, token } = await registerCaptain(req.body);
 
-  const saltRounds = 10;
-  const hashedPassword = await bcrypt.hash(captainData.password, saltRounds);
-
-  const newCaptain = new Captain({
-    firstName: captainData.firstName,
-    lastName: captainData.lastName,
-    email: captainData.email,
-    password: hashedPassword,
-    vehicle: captainData.vehicle,
+  res.status(201).json({
+    message: "Captain registered successfully",
+    captain: {
+      id: newCaptain._id,
+      firstName: newCaptain.firstName,
+      email: newCaptain.email,
+    },
+    token,
   });
+});
 
-  await newCaptain.save();
+export const login = catchAsync(async (req, res, next) => {
+  const { email, password } = req.body;
+  const { captain, token } = await loginCaptain(email, password);
 
-  return newCaptain;
-};
-
-// Login Captain
-export const loginCaptain = async (email, password) => {
-  const captain = await Captain.findOne({ email }).select("+password");
-
-  if (!captain) {
-    throw new Error("Invalid Credentials");
-  }
-
-  const isMatch = await bcrypt.compare(password, captain.password);
-
-  if (!isMatch) {
-    throw new Error("Invalid Credentials");
-  }
-
-  return captain;
-};
+  res.status(200).json({
+    message: "Logged in successfully",
+    captain: {
+      id: captain._id,
+      firstName: captain.firstName,
+      email: captain.email,
+    },
+    token,
+  });
+});
