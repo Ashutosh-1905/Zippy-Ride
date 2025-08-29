@@ -27,35 +27,37 @@ A Node.js backend for user authentication using Express, MongoDB (Mongoose), JWT
 📁 backend/
 ├── 📄 Readme.md
 ├── 📄 package.json
-├── 📄 server.js           # Server entry point
+├── 📄 server.js
 └── 📁 src
-    ├── 📁 api             # API routes, controllers, and services
-    │   ├── 📁 controllers
-    │   │   ├── 📄 captainController.js
-    │   │   └── 📄 userController.js
-    │   ├── 📁 middlewares
-    │   │   ├── 📄 authMiddleware.js      # JWT authentication middleware
-    │   │   ├── 📄 globalErrorHandler.js  # Centralized error handler
-    │   │   └── 📁 validation
-    │   │       ├── 📄 captainValidation.js
-    │   │       └── 📄 userValidation.js
-    │   ├── 📁 routes
-    │   │   ├── 📄 captainRoutes.js
-    │   │   └── 📄 userRoutes.js
-    │   └── 📁 services                  # Business logic
-    │       ├── 📄 captainService.js
-    │       ├── 📄 rideService.js
-    │       └── 📄 userService.js
-    ├── 📄 app.js                          # Express app setup
-    ├── 📁 config                          # Configuration management
-    │   ├── 📄 config.js
-    │   └── 📄 connectDb.js
-    ├── 📁 models                          # Mongoose schemas
-    │   ├── 📄 Captain.js
-    │   └── 📄 User.js
-    └── 📁 utils                           # Utility functions
-        ├── 📄 catchAsync.js
-        └── 📄 generateToken.js
+    ├── 📁 api
+    │   ├── 📁 controllers
+    │   │   ├── 📄 captainController.js
+    │   │   └── 📄 userController.js
+    │   ├── 📁 middlewares
+    │   │   ├── 📄 authMiddleware.js
+    │   │   ├── 📄 globalErrorHandler.js
+    │   │   └── 📁 validation
+    │   │       ├── 📄 captainValidation.js
+    │   │       └── 📄 userValidation.js
+    │   ├── 📁 routes
+    │   │   ├── 📄 captainRoutes.js
+    │   │   └── 📄 userRoutes.js
+    │   └── 📁 services
+    │       ├── 📄 captainService.js
+    │       ├── 📄 rideService.js
+    │       └── 📄 userService.js
+    ├── 📄 app.js
+    ├── 📁 config
+    │   ├── 📄 config.js
+    │   └── 📄 connectDb.js
+    ├── 📁 models
+    │   ├── 📄 BlacklistToken.js
+    │   ├── 📄 Captain.js
+    │   └── 📄 User.js
+    └── 📁 utils
+        ├── 📄 catchAsync.js
+        └── 📄 generateToken.js
+
 ```
 ---
 
