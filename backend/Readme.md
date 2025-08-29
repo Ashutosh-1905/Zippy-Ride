@@ -27,35 +27,35 @@ A Node.js backend for user authentication using Express, MongoDB (Mongoose), JWT
 📁 backend/
 ├── 📄 Readme.md
 ├── 📄 package.json
-├── 📄 server.js
+├── 📄 server.js           # Server entry point
 └── 📁 src
-    ├── 📁 api
-    │   ├── 📁 controllers
-    │   │   ├── 📄 captainController.js
-    │   │   └── 📄 userController.js
-    │   ├── 📁 middlewares
-    │   │   ├── 📄 authMiddleware.js
-    │   │   ├── 📄 globalErrorHandler.js
-    │   │   └── 📁 validation
-    │   │       ├── 📄 captainValidation.js
-    │   │       └── 📄 userValidation.js
-    │   ├── 📁 routes
-    │   │   ├── 📄 captainRoutes.js
-    │   │   └── 📄 userRoutes.js
-    │   └── 📁 services
-    │       ├── 📄 captainService.js
-    │       ├── 📄 rideService.js
-    │       └── 📄 userService.js
-    ├── 📄 app.js
-    ├── 📁 config
-    │   ├── 📄 config.js
-    │   └── 📄 connectDb.js
-    ├── 📁 models
-    │   ├── 📄 Captain.js
-    │   └── 📄 User.js
-    └── 📁 utils
-        ├── 📄 catchAsync.js
-        └── 📄 generateToken.js
+    ├── 📁 api             # API routes, controllers, and services
+    │   ├── 📁 controllers
+    │   │   ├── 📄 captainController.js
+    │   │   └── 📄 userController.js
+    │   ├── 📁 middlewares
+    │   │   ├── 📄 authMiddleware.js      # JWT authentication middleware
+    │   │   ├── 📄 globalErrorHandler.js  # Centralized error handler
+    │   │   └── 📁 validation
+    │   │       ├── 📄 captainValidation.js
+    │   │       └── 📄 userValidation.js
+    │   ├── 📁 routes
+    │   │   ├── 📄 captainRoutes.js
+    │   │   └── 📄 userRoutes.js
+    │   └── 📁 services                  # Business logic
+    │       ├── 📄 captainService.js
+    │       ├── 📄 rideService.js
+    │       └── 📄 userService.js
+    ├── 📄 app.js                          # Express app setup
+    ├── 📁 config                          # Configuration management
+    │   ├── 📄 config.js
+    │   └── 📄 connectDb.js
+    ├── 📁 models                          # Mongoose schemas
+    │   ├── 📄 Captain.js
+    │   └── 📄 User.js
+    └── 📁 utils                           # Utility functions
+        ├── 📄 catchAsync.js
+        └── 📄 generateToken.js
 ```
 ---
 
@@ -101,31 +101,156 @@ Server will start on the port defined in `.env` (`SERVER_PORT`).
 
 ---
 
-## API Endpoints
+A well-documented README.md file is crucial for a project's maintainability and ease of use. Based on your project structure and the details provided, here is a comprehensive README.md file that reflects the current state of your backend.
 
-### Auth Routes (`/api/auth`)
+Uber Backend
+A Node.js backend for a ride-sharing service, featuring user and captain (driver) authentication. It's built with Express, MongoDB (Mongoose), JWT, bcrypt, and follows best practices for a scalable and maintainable application.
 
-- **POST `/register`**  
-  Register a new user.  
-  **Body:**  
-  ```json
-  {
-    "firstName": "John",
-    "lastName": "Doe",
-    "email": "john@example.com",
-    "password": "yourpassword"
-  }
-  ```
+🧭 Table of Contents
+Project Structure
 
-- **POST `/login`**  
-  Login with email and password.  
-  **Body:**  
-  ```json
-  {
-    "email": "john@example.com",
-    "password": "yourpassword"
-  }
-  ```
+Environment Variables
+
+Installation
+
+Running the Server
+
+API Endpoints
+
+Key Architectural Decisions
+
+Code Overview
+
+Extending the Project
+
+Summary of Changes
+
+📂 Project Structure
+This project adopts a modular and layered architecture to separate concerns and enhance scalability.
+
+📁 backend/
+├── 📄 Readme.md
+├── 📄 package.json
+├── 📄 server.js           # Server entry point
+└── 📁 src
+    ├── 📁 api             # API routes, controllers, and services
+    │   ├── 📁 controllers
+    │   │   ├── 📄 captainController.js
+    │   │   └── 📄 userController.js
+    │   ├── 📁 middlewares
+    │   │   ├── 📄 authMiddleware.js      # JWT authentication middleware
+    │   │   ├── 📄 globalErrorHandler.js  # Centralized error handler
+    │   │   └── 📁 validation
+    │   │       ├── 📄 captainValidation.js
+    │   │       └── 📄 userValidation.js
+    │   ├── 📁 routes
+    │   │   ├── 📄 captainRoutes.js
+    │   │   └── 📄 userRoutes.js
+    │   └── 📁 services                  # Business logic
+    │       ├── 📄 captainService.js
+    │       ├── 📄 rideService.js
+    │       └── 📄 userService.js
+    ├── 📄 app.js                          # Express app setup
+    ├── 📁 config                          # Configuration management
+    │   ├── 📄 config.js
+    │   └── 📄 connectDb.js
+    ├── 📁 models                          # Mongoose schemas
+    │   ├── 📄 Captain.js
+    │   └── 📄 User.js
+    └── 📁 utils                           # Utility functions
+        ├── 📄 catchAsync.js
+        └── 📄 generateToken.js
+<br>
+
+⚙️ Environment Variables
+Configuration is managed via a .env file for security and portability. Copy .env.example to .env and fill in your values.
+
+Variable	Description
+SERVER_PORT	The port the server will run on (e.g., 3000)
+MONGODB_URI	Your MongoDB connection string
+NODE_ENV	The environment (development or production)
+JWT_SECRET	A secret key used to sign and verify JWT tokens
+
+Export to Sheets
+🛠️ Installation
+Clone the repository:
+
+Bash
+
+git clone <your-repo-url>
+cd <your-repo-name>/backend
+Install dependencies:
+
+Bash
+
+npm install
+Set up environment variables:
+
+Create a .env file by copying .env.example.
+
+Update the values with your specific configuration.
+
+▶️ Running the Server
+Development: Starts the server with nodemon for automatic restarts.
+
+Bash
+
+npm run dev
+Production: Starts the server in a production environment.
+
+Bash
+
+npm start
+The server will start on the port defined in your .env file.
+
+# 🔗 API Endpoints
+### All API endpoints are versioned with /api/v1 for future scalability.
+
+### User Endpoints (/api/v1/users)
+### POST /register
+
+Description: Registers a new user.
+
+Body:
+```
+JSON
+
+{
+  "firstName": "Jane",
+  "lastName": "Doe",
+  "email": "jane.doe@example.com",
+  "password": "strongpassword123"
+}
+```
+
+### POST /login
+
+#### Description: Authenticates a user and returns a JWT token.
+
+Body:
+```
+JSON
+
+{
+  "email": "jane.doe@example.com",
+  "password": "strongpassword123"
+}
+
+```
+
+### Captain Endpoints (/api/v1/captains)
+### POST /register
+
+Description: Registers a new captain.
+
+Body: (Similar to user registration with additional fields like vehicleDetails, etc.)
+
+POST /login
+
+Description: Authenticates a captain and returns a JWT token.
+
+Body: (Same as user login)
+
 
 **Responses:**  
 Both endpoints return a JWT token and user info on success.
@@ -142,7 +267,7 @@ Both endpoints return a JWT token and user info on success.
 
 ### src/app.js
 - Sets up Express, CORS, and JSON parsing.
-- Registers auth routes at `/api/auth`.
+- Registers user routes at `/api/v1/users`.
 - Root route (`/`) returns a welcome message.
 
 ### src/config/config.js
@@ -155,11 +280,11 @@ Both endpoints return a JWT token and user info on success.
 - Defines the `User` schema with fields: firstName, lastName, email, password (hashed), and socketId.
 - Password is not selected by default for security.
 
-### src/api/routes/authRoutes.js
+### src/api/routes/userRoutes.js
 - Defines `/register` and `/login` POST endpoints.
 - Uses controller functions for logic.
 
-### src/api/controllers/authController.js
+### src/api/controllers/userController.js
 - **register:**  
   - Checks if user exists.
   - Hashes password with bcrypt.
