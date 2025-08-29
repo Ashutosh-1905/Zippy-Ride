@@ -106,60 +106,6 @@ A well-documented README.md file is crucial for a project's maintainability and 
 Uber Backend
 A Node.js backend for a ride-sharing service, featuring user and captain (driver) authentication. It's built with Express, MongoDB (Mongoose), JWT, bcrypt, and follows best practices for a scalable and maintainable application.
 
-🧭 Table of Contents
-Project Structure
-
-Environment Variables
-
-Installation
-
-Running the Server
-
-API Endpoints
-
-Key Architectural Decisions
-
-Code Overview
-
-Extending the Project
-
-Summary of Changes
-
-📂 Project Structure
-This project adopts a modular and layered architecture to separate concerns and enhance scalability.
-
-📁 backend/
-├── 📄 Readme.md
-├── 📄 package.json
-├── 📄 server.js           # Server entry point
-└── 📁 src
-    ├── 📁 api             # API routes, controllers, and services
-    │   ├── 📁 controllers
-    │   │   ├── 📄 captainController.js
-    │   │   └── 📄 userController.js
-    │   ├── 📁 middlewares
-    │   │   ├── 📄 authMiddleware.js      # JWT authentication middleware
-    │   │   ├── 📄 globalErrorHandler.js  # Centralized error handler
-    │   │   └── 📁 validation
-    │   │       ├── 📄 captainValidation.js
-    │   │       └── 📄 userValidation.js
-    │   ├── 📁 routes
-    │   │   ├── 📄 captainRoutes.js
-    │   │   └── 📄 userRoutes.js
-    │   └── 📁 services                  # Business logic
-    │       ├── 📄 captainService.js
-    │       ├── 📄 rideService.js
-    │       └── 📄 userService.js
-    ├── 📄 app.js                          # Express app setup
-    ├── 📁 config                          # Configuration management
-    │   ├── 📄 config.js
-    │   └── 📄 connectDb.js
-    ├── 📁 models                          # Mongoose schemas
-    │   ├── 📄 Captain.js
-    │   └── 📄 User.js
-    └── 📁 utils                           # Utility functions
-        ├── 📄 catchAsync.js
-        └── 📄 generateToken.js
 <br>
 
 ⚙️ Environment Variables
@@ -204,12 +150,15 @@ npm start
 The server will start on the port defined in your .env file.
 
 # 🔗 API Endpoints
-### All API endpoints are versioned with /api/v1 for future scalability.
+### User Routes (/api/v1/users)
 
-### User Endpoints (/api/v1/users)
-### POST /register
+- POST /register → Register a new user
 
-Description: Registers a new user.
+- POST /login → Login user and get JWT
+
+- POST /logout → Logout user (blacklists token)
+
+- GET /profile → Get user profile (protected)
 
 Body:
 ```
@@ -256,6 +205,17 @@ Body: (Same as user login)
 Both endpoints return a JWT token and user info on success.
 
 ---
+
+
+# 🔑 Authentication Flow
+
+1. **Register** → User/Captain submits details → Password hashed → JWT issued
+
+2. **Login** → Verify credentials → JWT returned
+
+3. **Access Protected Routes** → Send JWT in Authorization: Bearer <token>
+
+4. **Logout** → Token stored in blacklist → Further use is blocked
 
 ## Code Overview
 
@@ -705,3 +665,26 @@ Both endpoints return a JWT token and user info on success.
 ---
 
 **These changes make the backend more secure, maintainable, and ready for future features.**
+
+---
+
+# 🔒 Token Blacklisting
+**Our application implements a token blacklisting mechanism to ensure that JSON Web Tokens (JWTs) are invalidated immediately upon user logout, thereby preventing their reuse. This enhances security by effectively ending a user's session on demand, even before the token's natural expiration.**
+
+## How It Works
+Logout Request: When a user logs out, a POST request is sent to the /api/v1/users/logout endpoint. This request must include the valid JWT in the Authorization header.
+
+
+## 🔒 Token Blacklisting
+
+Our app uses token blacklisting to instantly invalidate JWTs when a user logs out. This stops a user from using the same token to access secure parts of the application after their session has ended.
+
+---
+
+### How it Works
+
+1.  **Logout**: When you log out, the token from your request is saved in a special `BlacklistToken` database collection. 
+2.  **Protection**: Any time a user tries to access a protected route (like their profile), our `authenticateToken` middleware first checks this blacklist.
+3.  **Denial**: If the token is found on the blacklist, access is immediately denied with a **401 Unauthorized** error, even if the token isn't expired yet. This ensures that only active, unblacklisted tokens can be used to access your account.
+
+***This proves that even though the token might not have expired, it is no longer valid for authentication, effectively ending the session.***
