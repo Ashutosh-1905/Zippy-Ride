@@ -1,4 +1,5 @@
 import User from "../../models/User.js";
+import BlacklistToken from "../../models/BlacklistToken.js";
 import generateToken from "../../utils/generateToken.js";
 import bcrypt from "bcrypt";
 
@@ -47,4 +48,9 @@ export const loginUser = async (email, password) => {
   const token = generateToken(user._id);
 
   return { user, token };
+};
+
+
+export const logoutUser = async (token) => {
+  await BlacklistToken.create({ token });
 };

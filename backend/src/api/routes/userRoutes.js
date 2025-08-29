@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { login, register } from "../controllers/userController.js";
+import { login, logout, profile, register } from "../controllers/userController.js";
 import { handleValidationErrors, validateUserRegistration } from "../middlewares/validation/userValidation.js";
 
 const router = Router();
@@ -12,5 +12,9 @@ router.post(
 );
 
 router.post("/login", handleValidationErrors, login);
+
+router.get("/profile", authenticateToken, profile);
+router.post("/logout", authenticateToken, logout);
+
 
 export default router;

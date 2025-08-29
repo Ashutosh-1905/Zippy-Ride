@@ -1,5 +1,6 @@
 import catchAsync from "../../utils/catchAsync.js";
-import { registerUser, loginUser } from "../services/userService.js";
+import { registerUser, loginUser, logoutUser } from "../services/userService.js";
+
 
 // Register User
 export const register = catchAsync(async (req, res, next) => {
@@ -16,6 +17,7 @@ export const register = catchAsync(async (req, res, next) => {
   });
 });
 
+
 // Login User
 export const login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
@@ -30,4 +32,23 @@ export const login = catchAsync(async (req, res, next) => {
     },
     token,
   });
+});
+
+
+// Profile
+export const profile = catchAsync(async(req, res, next)=>{
+  res.status(200).json(req.user);
+})
+
+
+// Logout
+export const logout = catchAsync(async (req, res, next) => {
+  const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+
+  if (token) {
+    await logoutUser(token);
+  }
+
+  res.clearCookie("token");
+  res.status(200).json({ message: "Logged out successfully" });
 });
