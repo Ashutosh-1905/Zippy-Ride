@@ -1,23 +1,23 @@
 import User from "../../models/User.js";
 import BlacklistToken from "../../models/BlacklistToken.js";
 import generateToken from "../../utils/generateToken.js";
+import AppError from "../../utils/AppError.js";
 import bcrypt from "bcrypt";
 
 // Register User
 export const registerUser = async (userData) => {
-  const { firstName, lastName, email, password } = userData;
+  const { email, password } = userData;
 
   const existingUser = await User.findOne({ email });
   if (existingUser) {
-    throw new Error("User already exists with this email.");
+    throw new AppError("User already exists with this email.", 409);
   }
-
 
   const saltRounds = 10;
   const hashedPassword = await bcrypt.hash(password, saltRounds);
 
   const newUser = new User({
-    firstName:userData.firstName,
+    firstName: userData.firstName,
     lastName: userData.lastName,
     email: userData.email,
     password: hashedPassword,
@@ -34,15 +34,8 @@ export const registerUser = async (userData) => {
 export const loginUser = async (email, password) => {
   const user = await User.findOne({ email }).select("+password");
 
-  if (!user) {
-    throw new Error("Invalid Credentials");
-  }
-
-  // comparePassword
-  const isMatch = await bcrypt.compare(password, user.password);
-
-  if (!isMatch) {
-    throw new Error("Invalid Credentials");
+  if (!user || !(await bcrypt.compare(password, user.password))) {
+    throw new AppError("Invalid Credentials", 401);
   }
 
   const token = generateToken(user._id);
@@ -52,5 +45,8 @@ export const loginUser = async (email, password) => {
 
 
 export const logoutUser = async (token) => {
-  await BlacklistToken.create({ token });
+  const isBlacklisted = await BlacklistToken.findOne({ token });
+  if (!isBlacklisted) {
+    await BlacklistToken.create({ token });
+  }
 };

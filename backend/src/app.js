@@ -3,7 +3,9 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import userRoutes from "./api/routes/userRoutes.js"
 import captainRoutes from "./api/routes/captainRoutes.js";
+import mapRoutes from "./api/routes/mapRoutes.js";
 import globalErrorHandler from "./api/middlewares/globalErrorHandler.js";
+import AppError from "./utils/AppError.js";
 
 const app = express();
 app.use(cors());
@@ -14,20 +16,17 @@ app.use(cookieParser());
 
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/captains", captainRoutes);
+app.use("/api/v1/maps", mapRoutes);
 
 app.get("/", (req, res) => {
-    try {
-        res.status(200).json({
-            message: "welcom to Uber "
-        })
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({
-            message: "Something went Wrong."
-        });
-    };
+    res.status(200).json({
+        message: "welcome to Uber."
+    });
 });
 
+app.all('*', (req, res, next) => {
+  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+});
 
 app.use(globalErrorHandler);
 

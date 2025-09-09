@@ -1,6 +1,6 @@
 import catchAsync from "../../utils/catchAsync.js";
 import { registerUser, loginUser, logoutUser } from "../services/userService.js";
-
+import AppError from "../../utils/AppError.js";
 
 // Register User
 export const register = catchAsync(async (req, res, next) => {
@@ -37,7 +37,12 @@ export const login = catchAsync(async (req, res, next) => {
 
 // Profile
 export const profile = catchAsync(async(req, res, next)=>{
-  res.status(200).json(req.user);
+  res.status(200).json({
+    status: 'success',
+    data: {
+      user: req.user
+    }
+  });
 })
 
 
@@ -45,10 +50,11 @@ export const profile = catchAsync(async(req, res, next)=>{
 export const logout = catchAsync(async (req, res, next) => {
   const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
 
-  if (token) {
-    await logoutUser(token);
+  if (!token) {
+    return next(new AppError("No token provided", 400));
   }
 
+  await logoutUser(token);
   res.clearCookie("token");
   res.status(200).json({ message: "Logged out successfully" });
 });
