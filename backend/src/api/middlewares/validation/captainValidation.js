@@ -1,8 +1,8 @@
-import { body, validationResult } from "express-validator";
+import { body } from "express-validator";
 
-
+// Ab yahan sirf validation ke rules hain. Error handling ka middleware
+// ek alag file se import hoga.
 export const validateCaptainRegistration = [
-
   body("firstName")
     .notEmpty()
     .withMessage("First name is required.")
@@ -20,7 +20,6 @@ export const validateCaptainRegistration = [
     .withMessage("Please enter a valid email.")
     .normalizeEmail(), // Sanitizes the email to lowercase
 
-  // Validate vehicle information
   body("vehicle.color")
     .notEmpty()
     .withMessage("Vehicle color is required.")
@@ -45,12 +44,3 @@ export const validateCaptainRegistration = [
     .isIn(["car", "motorcycle", "auto"])
     .withMessage("Invalid vehicle type."),
 ];
-
-// Middleware to handle validation results
-export const handleValidationErrors = (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-  next();
-};

@@ -1,6 +1,5 @@
 import { registerCaptain, loginCaptain, logoutCaptain } from "../services/captainService.js";
 import catchAsync from "../../utils/catchAsync.js";
-import AppError from "../../utils/AppError.js";
 
 export const register = catchAsync(async (req, res, next) => {
   const { newCaptain, token } = await registerCaptain(req.body);
@@ -32,23 +31,17 @@ export const login = catchAsync(async (req, res, next) => {
 });
 
 export const profile = catchAsync(async(req, res, next)=>{
-  res.status(200).json({
-    status: 'success',
-    data: {
-      captain: req.captain
-    }
-  });
+    res.status(200).json(req.captain);
 });
 
 
 export const logout = catchAsync(async (req, res, next) => {
   const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
 
-  if (!token) {
-    return next(new AppError("No token provided", 400));
+  if (token) {
+    await logoutCaptain(token);
   }
 
-  await logoutCaptain(token);
   res.clearCookie("token");
   res.status(200).json({ message: "Logged out successfully" });
 });

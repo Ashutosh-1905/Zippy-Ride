@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { getCoordinates } from "../controllers/mapController.js";
 import { validateAddress } from "../middlewares/validation/mapValidation.js";
-import { handleValidationErrors } from "../middlewares/validation/userValidation.js";
+// Ab yahaan handleValidationErrors nayi file se import ho raha hai
+import { handleValidationErrors } from "../middlewares/validation/validationHandler.js";
 
 const router = Router();
 

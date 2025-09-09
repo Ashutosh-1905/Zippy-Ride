@@ -1,8 +1,10 @@
 import { Router } from "express";
 
-import { handleValidationErrors, validateCaptainRegistration } from "../middlewares/validation/captainValidation.js";
+import { validateCaptainRegistration } from "../middlewares/validation/captainValidation.js";
 import { login, logout, profile, register } from "../controllers/captainController.js";
 import { authenticateToken } from "../middlewares/authMiddleware.js";
+// Ab yahaan handleValidationErrors nayi file se import ho raha hai
+import { handleValidationErrors } from "../middlewares/validation/validationHandler.js";
 
 const router = Router();
 
