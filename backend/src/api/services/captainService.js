@@ -10,7 +10,7 @@ export const registerCaptain = async (captainData) => {
     throw new AppError("A captain with this email already exists.", 409);
   }
 
-  const saltRounds = 10;
+  const saltRounds = 10; 
   const hashedPassword = await bcrypt.hash(captainData.password, saltRounds);
 
   const newCaptain = new Captain({
