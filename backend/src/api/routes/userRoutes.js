@@ -1,9 +1,10 @@
 import { Router } from "express";
 import { login, logout, profile, register } from "../controllers/userController.js";
 import { validateUserRegistration } from "../middlewares/validation/userValidation.js";
-import { authenticateToken } from "../middlewares/authMiddleware.js";
+
 
 import { handleValidationErrors } from "../middlewares/validation/validationHandler.js";
+import { authenticateUser } from "../middlewares/authMiddleware.js";
 
 const router = Router();
 
@@ -16,8 +17,8 @@ router.post(
 
 router.post("/login", handleValidationErrors, login);
 
-router.get("/profile", authenticateToken, profile);
-router.post("/logout", authenticateToken, logout);
+router.get("/profile", authenticateUser, profile);
+router.post("/logout", authenticateUser, logout);
 
 
 export default router;
