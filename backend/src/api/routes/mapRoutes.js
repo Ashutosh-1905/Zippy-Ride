@@ -8,7 +8,7 @@ import {
 } from "../controllers/mapController.js";
 
 // Import validation middlewares
-import { validateAddress } from "../middlewares/validation/mapValidation.js";
+import { validateAddress, validateDistanceTime, validateSuggestions } from "../middlewares/validation/mapValidation.js";
 import { handleValidationErrors } from "../middlewares/validation/validationHandler.js";
 
 // Import other middlewares
@@ -19,28 +19,27 @@ const router = Router();
 // Route to get coordinates for a given address
 router.get(
   "/get-coordinates",
+  authenticateToken,
   validateAddress,
   handleValidationErrors,
-  authenticateToken,
   getCoordinates
 );
 
 // Route to get distance and time between two locations
 router.get(
   "/get-distance-time",
+  authenticateToken,
   validateDistanceTime,
   handleValidationErrors,
-  authenticateToken,
   getDistanceTimeController
 );
 
 // Route to get address suggestions
 router.get(
   "/get-suggestions",
-
+  authenticateToken,
   validateSuggestions,
   handleValidationErrors,
-  authenticateToken,
   getAutoSuggestions
 );
 

@@ -1,7 +1,7 @@
 import axios from "axios";
 import config from "../../config/config.js";
 import AppError from "../../utils/AppError.js";
-import Captain from "../../models/Captain.js"; 
+import Captain from "../../models/Captain.js";
 
 // this is a helper function hai,
 function formatDuration(seconds) {
@@ -17,7 +17,7 @@ function formatDuration(seconds) {
   return parts.length > 0 ? parts.join(" ") : "0 min";
 }
 
-// getAddressCoordinates function 
+// getAddressCoordinates function
 export const getAddressCoordinates = async (address) => {
   try {
     const response = await axios.get(config.mapApi, {
@@ -43,6 +43,19 @@ export const getAddressCoordinates = async (address) => {
       displayName: location.display_name,
     };
   } catch (err) {
+    // Log the full error to the console for detailed debugging
+    if (err.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      console.error("Nominatim API Error:", err.response.status, err.response.data);
+    } else if (err.request) {
+      // The request was made but no response was received
+      console.error("Nominatim API Error: No response received. Check network connectivity.");
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      console.error("Nominatim API Error:", err.message);
+    }
+
     throw new AppError("Error fetching coordinates", 500);
   }
 };
