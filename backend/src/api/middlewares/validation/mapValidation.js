@@ -25,6 +25,6 @@ export const validateSuggestions = [
   query("input")
     .isString()
     .withMessage("Input must be a string.")
-    .isLength({ min: 3 })
-    .withMessage("Input must be at least 3 characters long."),
+    .isLength({ min: 1 }) 
+    .withMessage("Input must be at least 1 character long."),
 ];

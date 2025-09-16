@@ -1,7 +1,10 @@
+
 import React, { useContext } from 'react'
 import { CaptainDataContext } from '../context/CaptainContext'
+
 const CaptainDetails = () => {
- const { captain } = useContext(CaptainDataContext)
+
+    const { captain } = useContext(CaptainDataContext)
 
     return (
         <div>
@@ -14,7 +17,7 @@ const CaptainDetails = () => {
                     <h4 className='text-xl font-semibold'>₹295.20</h4>
                     <p className='text-sm text-gray-600'>Earned</p>
                 </div>
-                 </div>
+            </div>
             <div className='flex p-3 mt-8 bg-gray-100 rounded-xl justify-center gap-5 items-start'>
                 <div className='text-center'>
                     <i className="text-3xl mb-2 font-thin ri-timer-2-line"></i>
