@@ -6,7 +6,6 @@ import captainRoutes from "./api/routes/captainRoutes.js";
 import mapRoutes from "./api/routes/mapRoutes.js";
 import rideRoutes from "./api/routes/rideRoutes.js";
 import globalErrorHandler from "./api/middlewares/globalErrorHandler.js";
-import AppError from "./utils/AppError.js";
 
 const app = express();
 app.use(cors());
@@ -25,11 +24,6 @@ app.get("/", (req, res) => {
         message: "welcome to Uber."
     });
 });
-
-// Handle unhandled routes (404)
-// app.all('*', (req, res, next) => {
-//   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
-// });
 
 app.use(globalErrorHandler);
 

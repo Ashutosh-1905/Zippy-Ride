@@ -24,13 +24,16 @@ const captainSchema = new Schema(
     },
     password: {
       type: String,
-      // required: [true, "Password is required."],
       select: false,
     },
     status: {
       type: String,
       enum: ["active", "inactive", "on-trip"],
       default: "inactive",
+    },
+    socketId: {
+      type: String,
+      required: false,
     },
     vehicle: {
       type: {
@@ -64,11 +67,7 @@ const captainSchema = new Schema(
         lat: Number,
         lng: Number,
       },
-      required: false, // Location is not required during registration
-    },
-    socketId: {
-      type: String,
-      required: false, // SocketId is not required during registration
+      required: false,
     },
   },
   {

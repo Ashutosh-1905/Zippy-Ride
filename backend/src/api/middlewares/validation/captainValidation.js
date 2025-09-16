@@ -1,7 +1,5 @@
 import { body } from "express-validator";
 
-// Ab yahan sirf validation ke rules hain. Error handling ka middleware
-// ek alag file se import hoga.
 export const validateCaptainRegistration = [
   body("firstName")
     .notEmpty()
@@ -18,7 +16,13 @@ export const validateCaptainRegistration = [
   body("email")
     .isEmail()
     .withMessage("Please enter a valid email.")
-    .normalizeEmail(), // Sanitizes the email to lowercase
+    .normalizeEmail(),
+
+  body("password")
+    .notEmpty()
+    .withMessage("Password is required.")
+    .isLength({ min: 6 })
+    .withMessage("Password must be at least 6 characters long."),
 
   body("vehicle.color")
     .notEmpty()
@@ -43,4 +47,16 @@ export const validateCaptainRegistration = [
     .withMessage("Vehicle type is required.")
     .isIn(["car", "motorcycle", "auto"])
     .withMessage("Invalid vehicle type."),
+];
+
+export const validateCaptainLogin = [
+  body("email")
+    .notEmpty()
+    .withMessage("Email is required.")
+    .isEmail()
+    .withMessage("Please enter a valid email.")
+    .normalizeEmail(),
+  body("password")
+    .notEmpty()
+    .withMessage("Password is required.")
 ];

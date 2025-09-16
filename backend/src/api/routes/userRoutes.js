@@ -1,6 +1,10 @@
 import { Router } from "express";
 import { login, logout, profile, register } from "../controllers/userController.js";
-import { validateUserRegistration } from "../middlewares/validation/userValidation.js";
+import {
+  validateUserLogin,
+  validateUserRegistration,
+
+} from "../middlewares/validation/userValidation.js";
 
 
 import { handleValidationErrors } from "../middlewares/validation/validationHandler.js";
@@ -15,7 +19,7 @@ router.post(
   register
 );
 
-router.post("/login", handleValidationErrors, login);
+router.post("/login", validateUserLogin, handleValidationErrors, login);
 
 router.get("/profile", authenticateUser, profile);
 router.post("/logout", authenticateUser, logout);
