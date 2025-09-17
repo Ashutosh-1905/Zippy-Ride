@@ -1,25 +1,26 @@
-# Uber Backend
+Here is the comprehensive `Readme.md` file based on all the documentation you have provided so far, with a clear and logical structure.
 
-A Node.js backend for user authentication using Express, MongoDB (Mongoose), JWT, and bcrypt.
+-----
 
----
+# Apex Backend
+
+A Node.js backend for a ride-sharing service, featuring user and captain (driver) authentication. It's built with Express, MongoDB (Mongoose), JWT, and bcrypt, following best practices for a scalable and maintainable application.
+
+-----
 
 ## Table of Contents
 
-- [Project Structure](#project-structure)
-- [Environment Variables](#environment-variables)
-- [Installation](#installation)
-- [Running the Server](#running-the-server)
-- [API Endpoints](#api-endpoints)
-- [Code Overview](#code-overview)
-- [How Authentication Works](#how-authentication-works)
-- [Extending the Project](#extending-the-project)
-- [JWT Token Generation and DRY Improvements](#jwt-token-generation-and-dry-improvements)
-- [Configuration Management](#configuration-management)
-- [Captain (Driver) Module](#captain-driver-module)
-- [Summary of Changes](#summary-of-changes)
+  - [Project Structure](https://www.google.com/search?q=%23project-structure)
+  - [Environment Variables](https://www.google.com/search?q=%23environment-variables)
+  - [Installation](https://www.google.com/search?q=%23installation)
+  - [Running the Server](https://www.google.com/search?q=%23running-the-server)
+  - [API Endpoints](https://www.google.com/search?q=%23api-endpoints)
+      - [User API](https://www.google.com/search?q=%23user-api)
+      - [Captain API](https://www.google.com/search?q=%23captain-api)
+      - [Map API](https://www.google.com/search?q=%23map-api)
+      - [Ride API](https://www.google.com/search?q=%23ride-api)
 
----
+-----
 
 ## Project Structure
 
@@ -31,183 +32,143 @@ A Node.js backend for user authentication using Express, MongoDB (Mongoose), JWT
 └── 📁 src
     ├── 📁 api
     │   ├── 📁 controllers
-    │   │   ├── 📄 captainController.js
-    │   │   └── 📄 userController.js
     │   ├── 📁 middlewares
-    │   │   ├── 📄 authMiddleware.js
-    │   │   ├── 📄 globalErrorHandler.js
-    │   │   └── 📁 validation
-    │   │       ├── 📄 captainValidation.js
-    │   │       └── 📄 userValidation.js
     │   ├── 📁 routes
-    │   │   ├── 📄 captainRoutes.js
-    │   │   └── 📄 userRoutes.js
-    │   └── 📁 services
-    │       ├── 📄 captainService.js
-    │       ├── 📄 rideService.js
-    │       └── 📄 userService.js
-    ├── 📄 app.js
+    │   ├── 📁 services
     ├── 📁 config
-    │   ├── 📄 config.js
-    │   └── 📄 connectDb.js
     ├── 📁 models
-    │   ├── 📄 BlacklistToken.js
-    │   ├── 📄 Captain.js
-    │   └── 📄 User.js
     └── 📁 utils
-        ├── 📄 catchAsync.js
-        └── 📄 generateToken.js
-
 ```
----
+
+-----
 
 ## Environment Variables
 
-Configuration is managed via environment variables.  
-Copy `.env.example` to `.env` and fill in your values:
+Configuration is managed via a `.env` file for security and portability. Copy `.env.example` to `.env` and fill in your values.
 
-| Variable        | Description                        |
-|-----------------|------------------------------------|
-| SERVER_PORT     | Port for the server (e.g., 3000)   |
-| MONGODB_URI     | MongoDB connection string          |
-| NODE_ENV        | Environment (development/production)|
-| FRONTEND_URL    | (Optional) Frontend URL            |
-| JWT_SECRET      | Secret key for JWT signing         |
+| Variable | Description |
+| :--- | :--- |
+| `SERVER_PORT` | The port the server will run on (e.g., `4000`) |
+| `MONGODB_URI` | Your MongoDB connection string |
+| `NODE_ENV` | The environment (`development` or `production`) |
+| `JWT_SECRET` | A secret key used to sign and verify JWT tokens |
+| `MAP_API_KEY` | (Example) An API key for map services |
 
----
+-----
 
 ## Installation
 
-1. **Clone the repository**
-2. **Install dependencies**
-   ```sh
-   npm install
-   ```
-3. **Set up environment variables**
-   - Copy `.env.example` to `.env` and update values.
+1.  **Clone the repository**:
+    ```sh
+    git clone <your-repo-url>
+    cd <your-repo-name>
+    ```
+2.  **Install dependencies**:
+    ```sh
+    npm install
+    ```
+3.  **Set up environment variables**:
+      * Create a `.env` file in the root directory.
+      * Add the required variables as listed above.
 
----
+-----
 
 ## Running the Server
 
-- **Development:**
-  ```sh
-  npm run dev
-  ```
-- **Production:**
-  ```sh
-  npm start
-  ```
+  - **Development**: Starts the server with `nodemon` for automatic restarts.
+    ```sh
+    npm run dev
+    ```
+  - **Production**: Starts the server in a production environment.
+    ```sh
+    npm start
+    ```
 
-Server will start on the port defined in `.env` (`SERVER_PORT`).
+The server will start on the port defined in your `.env` file (`SERVER_PORT`).
 
----
+-----
 
-A well-documented README.md file is crucial for a project's maintainability and ease of use. Based on your project structure and the details provided, here is a comprehensive README.md file that reflects the current state of your backend.
+## API Endpoints
 
-Uber Backend
-A Node.js backend for a ride-sharing service, featuring user and captain (driver) authentication. It's built with Express, MongoDB (Mongoose), JWT, bcrypt, and follows best practices for a scalable and maintainable application.
+### **User API** 👨‍💻
 
-<br>
+All user-related API endpoints are prefixed with `/api/v1/users`.
 
-⚙️ Environment Variables
-Configuration is managed via a .env file for security and portability. Copy .env.example to .env and fill in your values.
+  * **POST `/register`**
+      * **Description:** Registers a new user.
+      * **Body:** `{ "firstName": "John", "lastName": "Doe", "email": "johndoe@example.com", "password": "securepassword" }`
+  * **POST `/login`**
+      * **Description:** Authenticates a user and returns a JWT token.
+      * **Body:** `{ "email": "johndoe@example.com", "password": "securepassword" }`
+  * **GET `/profile`**
+      * **Description:** Retrieves the authenticated user's profile.
+      * **Authentication:** Requires a valid `Bearer <token>` in the `Authorization` header.
+  * **POST `/logout`**
+      * **Description:** Invalidates the user's token.
+      * **Authentication:** Requires a valid `Bearer <token>` in the `Authorization` header.
 
-Variable	Description
-SERVER_PORT	The port the server will run on (e.g., 3000)
-MONGODB_URI	Your MongoDB connection string
-NODE_ENV	The environment (development or production)
-JWT_SECRET	A secret key used to sign and verify JWT tokens
+### **Captain API** 👨‍✈️
 
-Export to Sheets
-🛠️ Installation
-Clone the repository:
+All captain-related API endpoints are prefixed with `/api/v1/captains`.
 
-Bash
+  * **POST `/register`**
+      * **Description:** Registers a new captain.
+      * **Body:** `{ "firstName": "Captain", "lastName": "America", "email": "captain@example.com", "password": "securepassword", "vehicle": { "color": "blue", "plate": "CA-1234", "capacity": 4, "vehicleType": "car" } }`
+  * **POST `/login`**
+      * **Description:** Authenticates a captain and returns a JWT token.
+      * **Body:** `{ "email": "captain@example.com", "password": "securepassword" }`
+  * **GET `/profile`**
+      * **Description:** Retrieves the authenticated captain's profile.
+      * **Authentication:** Requires a valid `Bearer <token>` in the `Authorization` header.
+  * **POST `/logout`**
+      * **Description:** Invalidates the captain's token.
+      * **Authentication:** Requires a valid `Bearer <token>` in the `Authorization` header.
 
-git clone <your-repo-url>
-cd <your-repo-name>/backend
-Install dependencies:
+### **Map API** 🗺️
 
-Bash
+All map-related API endpoints are prefixed with `/api/v1/maps`.
 
-npm install
-Set up environment variables:
+  * **GET `/get-coordinates`**
+      * **Description:** Converts a human-readable address to coordinates.
+      * **Authentication:** Requires a valid `Bearer <token>` in the `Authorization` header.
+      * **Query:** `?address=1600 Amphitheatre Parkway`
+  * **GET `/get-distance-time`**
+      * **Description:** Calculates the driving distance and estimated time between two locations.
+      * **Authentication:** Requires a valid `Bearer <token>` in the `Authorization` header.
+      * **Query:** `?origin=123 Main St&destination=456 Side St`
+  * **GET `/get-suggestions`**
+      * **Description:** Provides auto-complete address suggestions.
+      * **Authentication:** Requires a valid `Bearer <token>` in the `Authorization` header.
+      * **Query:** `?input=1600 Amphitheatre`
 
-Create a .env file by copying .env.example.
+### **Ride API** 🚗
 
-Update the values with your specific configuration.
+All ride-related API endpoints are prefixed with `/api/v1/rides`.
 
-▶️ Running the Server
-Development: Starts the server with nodemon for automatic restarts.
-
-Bash
-
-npm run dev
-Production: Starts the server in a production environment.
-
-Bash
-
-npm start
-The server will start on the port defined in your .env file.
-
-# 🔗 API Endpoints
-### User Routes (/api/v1/users)
-
-- POST /register → Register a new user
-
-- POST /login → Login user and get JWT
-
-- POST /logout → Logout user (blacklists token)
-
-- GET /profile → Get user profile (protected)
-
-Body:
-```
-JSON
-
-{
-  "firstName": "Jane",
-  "lastName": "Doe",
-  "email": "jane.doe@example.com",
-  "password": "strongpassword123"
-}
-```
-
-### POST /login
-
-#### Description: Authenticates a user and returns a JWT token.
-
-Body:
-```
-JSON
-
-{
-  "email": "jane.doe@example.com",
-  "password": "strongpassword123"
-}
-
-```
-
-### Captain Endpoints (/api/v1/captains)
-### POST /register
-
-Description: Registers a new captain.
-
-Body: (Similar to user registration with additional fields like vehicleDetails, etc.)
-
-POST /login
-
-Description: Authenticates a captain and returns a JWT token.
-
-Body: (Same as user login)
+  * **POST `/request-ride`**
+      * **Description:** Allows a user to request a new ride.
+      * **Authentication:** Requires a valid **user** `Bearer <token>` in the `Authorization` header.
+      * **Body:** `{ "pickup": "123 Main St", "destination": "456 Side St", "vehicleType": "car" }`
+  * **GET `/get-fare`**
+      * **Description:** Calculates the estimated fare for different vehicle types.
+      * **Authentication:** Requires a valid **user** `Bearer <token>` in the `Authorization` header.
+      * **Query:** `?pickup=123 Main St&destination=456 Side St`
+  * **POST `/accept-ride`**
+      * **Description:** Allows a captain to accept a ride request.
+      * **Authentication:** Requires a valid **captain** `Bearer <token>` in the `Authorization` header.
+      * **Body:** `{ "rideId": "651a238b9d7a2c6d4e5f7a13" }`
+  * **GET `/start-ride`**
+      * **Description:** Starts an accepted ride after OTP verification.
+      * **Authentication:** Requires a valid **captain** `Bearer <token>` in the `Authorization` header.
+      * **Query:** `?rideId=651a238b9d7a2c6d4e5f7a13&otp=123456`
+  * **POST `/end-ride`**
+      * **Description:** Ends an ongoing ride.
+      * **Authentication:** Requires a valid **captain** `Bearer <token>` in the `Authorization` header.
+      * **Body:** `{ "rideId": "651a238b9d7a2c6d4e5f7a13" }`
 
 
-**Responses:**  
-Both endpoints return a JWT token and user info on success.
-
----
-
+      
+-------------------------------------------------------------------------------------------------------
 
 # 🔑 Authentication Flow
 
