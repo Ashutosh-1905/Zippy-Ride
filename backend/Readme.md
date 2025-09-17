@@ -32,12 +32,44 @@ A Node.js backend for a ride-sharing service, featuring user and captain (driver
 └── 📁 src
     ├── 📁 api
     │   ├── 📁 controllers
+    │   │   ├── 📄 captainController.js
+    │   │   ├── 📄 mapController.js
+    │   │   ├── 📄 rideController.js
+    │   │   └── 📄 userController.js
     │   ├── 📁 middlewares
+    │   │   ├── 📄 authMiddleware.js
+    │   │   ├── 📄 globalErrorHandler.js
+    │   │   └── 📁 validation
+    │   │       ├── 📄 captainValidation.js
+    │   │       ├── 📄 mapValidation.js
+    │   │       ├── 📄 rideValidation.js
+    │   │       ├── 📄 userValidation.js
+    │   │       └── 📄 validationHandler.js
     │   ├── 📁 routes
-    │   ├── 📁 services
+    │   │   ├── 📄 captainRoutes.js
+    │   │   ├── 📄 mapRoutes.js
+    │   │   ├── 📄 rideRoutes.js
+    │   │   └── 📄 userRoutes.js
+    │   └── 📁 services
+    │       ├── 📄 captainService.js
+    │       ├── 📄 mapService.js
+    │       ├── 📄 rideService.js
+    │       └── 📄 userService.js
+    ├── 📄 app.js
     ├── 📁 config
+    │   ├── 📄 config.js
+    │   └── 📄 connectDb.js
     ├── 📁 models
+    │   ├── 📄 BlacklistToken.js
+    │   ├── 📄 Captain.js
+    │   ├── 📄 Ride.js
+    │   └── 📄 User.js
     └── 📁 utils
+        ├── 📄 AppError.js
+        ├── 📄 catchAsync.js
+        ├── 📄 generateToken.js
+        └── 📄 socket.js
+
 ```
 
 -----
