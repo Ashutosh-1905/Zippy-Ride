@@ -2,17 +2,19 @@ import { model, Schema } from "mongoose";
 
 const captainSchema = new Schema(
   {
-    firstName: {
-      type: String,
-      required: [true, "First name is required."],
-      minlength: [3, "First name must be at least 3 characters long."],
-      trim: true,
-    },
-    lastName: {
-      type: String,
-      required: [true, "Last name is required."],
-      minlength: [3, "Last name must be at least 3 characters long."],
-      trim: true,
+    fullname: {
+      firstName: {
+        type: String,
+        required: [true, "First name is required."],
+        minlength: [3, "First name must be at least 3 characters long."],
+        trim: true,
+      },
+      lastName: {
+        type: String,
+        required: [true, "Last name is required."],
+        minlength: [3, "Last name must be at least 3 characters long."],
+        trim: true,
+      },
     },
     email: {
       type: String,
@@ -24,6 +26,8 @@ const captainSchema = new Schema(
     },
     password: {
       type: String,
+      required: [true, "Password is required."],
+      minlength: [8, "Password must be at least 8 characters long."],
       select: false,
     },
     status: {
@@ -62,19 +66,34 @@ const captainSchema = new Schema(
       },
       required: [true, "Vehicle information is required."],
     },
-    currentLocation: {
+
+    // currentLocation: {
+    //   type: {
+    //     type: String,
+    //     enum: ["Point"],
+    //       default: "Point",
+    //       required:false
+    //   },
+    //   coordinates: {
+    //     type: [Number], // [longitude, latitude],
+    //       index: "2dsphere",
+    //   },
+    // },
+     currentLocation: {
       type: {
         lat: Number,
         lng: Number,
       },
       required: false,
     },
+
   },
   {
     timestamps: true,
   }
 );
 
+// captainSchema.index({ currentLocation: "2dsphere" });
 const Captain = model("Captain", captainSchema);
 
 export default Captain;

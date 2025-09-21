@@ -116,20 +116,37 @@ export const getAutoCompleteSuggestions = async (input) => {
 };
 
 // Find Captains in a Radius Function
+// export const getCaptainsInTheRadius = async (lat, lng, radius) => {
+//     try {
+//         const captains = await Captain.find({
+//             "currentLocation.lat": {
+//                 $gte: lat - (radius / 111.32), // approx km per degree lat
+//                 $lte: lat + (radius / 111.32)
+//             },
+//             "currentLocation.lng": {
+//                 $gte: lng - (radius / (111.32 * Math.cos(lat * Math.PI / 180))), // approx km per degree lng
+//                 $lte: lng + (radius / (111.32 * Math.cos(lat * Math.PI / 180)))
+//             },
+//         });
+//         return captains;
+//     } catch (error) {
+//         throw new AppError("Error finding captains in the radius", 500);
+//     }
+// };
+
+// src/api/services/mapService.js
+// ...
 export const getCaptainsInTheRadius = async (lat, lng, radius) => {
-    try {
-        const captains = await Captain.find({
-            "currentLocation.lat": {
-                $gte: lat - (radius / 111.32), // approx km per degree lat
-                $lte: lat + (radius / 111.32)
-            },
-            "currentLocation.lng": {
-                $gte: lng - (radius / (111.32 * Math.cos(lat * Math.PI / 180))), // approx km per degree lng
-                $lte: lng + (radius / (111.32 * Math.cos(lat * Math.PI / 180)))
-            },
-        });
-        return captains;
-    } catch (error) {
-        throw new AppError("Error finding captains in the radius", 500);
-    }
+  try {
+    const captains = await Captain.find({
+      currentLocation: {
+        $geoWithin: {
+          $centerSphere: [[lng, lat], radius / 6378.1] // radius in radians
+        }
+      }
+    });
+    return captains;
+  } catch (error) {
+    throw new AppError("Error finding captains in the radius", 500);
+  }
 };

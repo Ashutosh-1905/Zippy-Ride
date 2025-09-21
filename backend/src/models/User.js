@@ -2,17 +2,19 @@ import { model, Schema } from "mongoose";
 
 const userSchema = new Schema(
   {
-    firstName: {
-      type: String,
-      required: [true, "First name is required."],
-      minlength: [3, "First name must be at least 3 characters long."],
-      trim: true,
-    },
-    lastName: {
-      type: String,
-      required: [true, "Last name is required."],
-      minlength: [3, "Last name must be at least 3 characters long."],
-      trim: true,
+    fullname: {
+      firstName: {
+        type: String,
+        required: [true, "First name is required."],
+        minlength: [3, "First name must be at least 3 characters long."],
+        trim: true,
+      },
+      lastName: {
+        type: String,
+        required: [true, "Last name is required."],
+        minlength: [3, "Last name must be at least 3 characters long."],
+        trim: true,
+      },
     },
     email: {
       type: String,
@@ -27,7 +29,7 @@ const userSchema = new Schema(
     },
     password: {
       type: String,
-      // required: [true, "Password is required."],
+      required: [true, "Password is required."],
       minlength: [8, "Password must be at least 8 characters long."],
       select: false,
     },

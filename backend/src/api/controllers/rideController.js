@@ -34,7 +34,7 @@ export const requestRide = catchAsync(async (req, res, next) => {
 
     res.status(201).json({
         message: "Ride request submitted. Waiting for a captain...",
-        ride: newRide,
+        ride: rideWithUser,
     });
 });
 

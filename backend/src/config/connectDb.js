@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import config from "./config.js";
 
-const connetDb = async () => {
+const connectDb = async () => {
     try {
         await mongoose.connect(config.databaseUrl);
         console.log(`Database connected successfully.`);
@@ -12,4 +12,4 @@ const connetDb = async () => {
     }
 };
 
-export default connetDb;
+export default connectDb;

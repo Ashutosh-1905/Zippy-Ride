@@ -6,52 +6,55 @@ import AppError from "../../utils/AppError.js";
 import User from "../../models/User.js";
 import Captain from "../../models/Captain.js";
 
+const getTokenFromReq = (req) =>
+  req.cookies.token || req.header("Authorization")?.split(" ")[1] || null;
+
 // Middleware to authenticate users
 export const authenticateUser = catchAsync(async (req, res, next) => {
-    const token = req.cookies.token || req.header("Authorization")?.split(" ")[1];
+  const token = getTokenFromReq(req);
 
-    if (!token) {
-        return next(new AppError("Access denied. No token Provided.", 401));
-    }
+  if (!token) {
+    return next(new AppError("Access denied. No token Provided.", 401));
+  }
 
-    const isTokenBlacklisted = await BlacklistToken.findOne({ token });
+  const isTokenBlacklisted = await BlacklistToken.findOne({ token });
 
-    if (isTokenBlacklisted) {
-        return next(new AppError("Invalid token. Token has been blacklisted.", 401));
-    }
+  if (isTokenBlacklisted) {
+    return next(new AppError("Invalid token. Token has been blacklisted.", 401));
+  }
 
-    const decoded = jwt.verify(token, config.jwtSecret);
-    const user = await User.findById(decoded.id);
+  const decoded = jwt.verify(token, config.jwtSecret);
+  const user = await User.findById(decoded.id);
 
-    if (!user) {
-        return next(new AppError("User not found.", 404));
-    }
+  if (!user) {
+    return next(new AppError("User not found.", 404));
+  }
 
-    req.user = user;
-    next();
+  req.user = user;
+  next();
 });
 
 // Middleware to authenticate captains
 export const authenticateCaptain = catchAsync(async (req, res, next) => {
-    const token = req.cookies.token || req.header("Authorization")?.split(" ")[1];
+  const token = getTokenFromReq(req);
 
-    if (!token) {
-        return next(new AppError("Access denied. No token Provided.", 401));
-    }
+  if (!token) {
+    return next(new AppError("Access denied. No token Provided.", 401));
+  }
 
-    const isTokenBlacklisted = await BlacklistToken.findOne({ token });
+  const isTokenBlacklisted = await BlacklistToken.findOne({ token });
 
-    if (isTokenBlacklisted) {
-        return next(new AppError("Invalid token. Token has been blacklisted.", 401));
-    }
+  if (isTokenBlacklisted) {
+    return next(new AppError("Invalid token. Token has been blacklisted.", 401));
+  }
 
-    const decoded = jwt.verify(token, config.jwtSecret);
-    const captain = await Captain.findById(decoded.id);
+  const decoded = jwt.verify(token, config.jwtSecret);
+  const captain = await Captain.findById(decoded.id);
 
-    if (!captain) {
-        return next(new AppError("Captain not found.", 404));
-    }
+  if (!captain) {
+    return next(new AppError("Captain not found.", 404));
+  }
 
-    req.captain = captain;
-    next();
+  req.captain = captain;
+  next();
 });

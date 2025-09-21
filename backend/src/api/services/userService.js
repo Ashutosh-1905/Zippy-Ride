@@ -6,7 +6,7 @@ import bcrypt from "bcrypt";
 
 // Register User
 export const registerUser = async (userData) => {
-  const { email, password } = userData;
+  const { email, password, fullname } = userData;
 
   const existingUser = await User.findOne({ email });
   if (existingUser) {
@@ -17,9 +17,11 @@ export const registerUser = async (userData) => {
   const hashedPassword = await bcrypt.hash(password, saltRounds);
 
   const newUser = new User({
-    firstName: userData.firstName,
-    lastName: userData.lastName,
-    email: userData.email,
+    fullname: {
+      firstName: fullname.firstName,
+      lastName: fullname.lastName,
+    },
+    email: email,
     password: hashedPassword,
   });
 
@@ -43,10 +45,8 @@ export const loginUser = async (email, password) => {
   return { user, token };
 };
 
-
 export const logoutUser = async (token) => {
-  const isBlacklisted = await BlacklistToken.findOne({ token });
-  if (!isBlacklisted) {
-    await BlacklistToken.create({ token });
-  }
+  if (!token) return;
+  // Upsert to avoid race conditions and reduce operations
+  await BlacklistToken.updateOne({ token }, { token }, { upsert: true });
 };

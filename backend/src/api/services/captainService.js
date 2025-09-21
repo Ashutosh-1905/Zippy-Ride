@@ -10,15 +10,23 @@ export const registerCaptain = async (captainData) => {
     throw new AppError("A captain with this email already exists.", 409);
   }
 
-  const saltRounds = 10; 
+  const existingPlate = await Captain.findOne({ "vehicle.plate": captainData.vehicle.plate });
+  if (existingPlate) {
+    throw new AppError("Vehicle plate already registered.", 409);
+  }
+
+  const saltRounds = 10;
   const hashedPassword = await bcrypt.hash(captainData.password, saltRounds);
 
   const newCaptain = new Captain({
-    firstName: captainData.firstName,
-    lastName: captainData.lastName,
+    fullname: {
+      firstName: captainData.fullname.firstName,
+      lastName: captainData.fullname.lastName,
+    },
     email: captainData.email,
     password: hashedPassword,
     vehicle: captainData.vehicle,
+    // currentLocation can be added later or defaulted by client when available
   });
 
   await newCaptain.save();
@@ -40,11 +48,7 @@ export const loginCaptain = async (email, password) => {
   return { captain, token };
 };
 
-
 export const logoutCaptain = async (token) => {
-  // Check if the token is already blacklisted to prevent duplicates
-  const isBlacklisted = await BlacklistToken.findOne({ token });
-  if (!isBlacklisted) {
-    await BlacklistToken.create({ token });
-  }
+  if (!token) return;
+  await BlacklistToken.updateOne({ token }, { token }, { upsert: true });
 };

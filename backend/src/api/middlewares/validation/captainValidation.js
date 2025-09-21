@@ -1,28 +1,25 @@
 import { body } from "express-validator";
 
 export const validateCaptainRegistration = [
-  body("firstName")
+  body("fullname.firstName")
     .notEmpty()
     .withMessage("First name is required.")
     .isLength({ min: 3 })
     .withMessage("First name must be at least 3 characters long."),
 
-  body("lastName")
+  body("fullname.lastName")
     .notEmpty()
     .withMessage("Last name is required.")
     .isLength({ min: 3 })
     .withMessage("Last name must be at least 3 characters long."),
 
-  body("email")
-    .isEmail()
-    .withMessage("Please enter a valid email.")
-    .normalizeEmail(),
+  body("email").isEmail().withMessage("Please enter a valid email.").normalizeEmail(),
 
   body("password")
     .notEmpty()
     .withMessage("Password is required.")
-    .isLength({ min: 6 })
-    .withMessage("Password must be at least 6 characters long."),
+    .isLength({ min: 8 })
+    .withMessage("Password must be at least 8 characters long."),
 
   body("vehicle.color")
     .notEmpty()
@@ -56,7 +53,5 @@ export const validateCaptainLogin = [
     .isEmail()
     .withMessage("Please enter a valid email.")
     .normalizeEmail(),
-  body("password")
-    .notEmpty()
-    .withMessage("Password is required.")
+  body("password").notEmpty().withMessage("Password is required."),
 ];
