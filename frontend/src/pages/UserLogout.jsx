@@ -1,35 +1,41 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { UserDataContext } from '../context/UserContext';
 
 const UserLogout = () => {
-  const navigate = useNavigate();
-  const token = localStorage.getItem('token');
+    const navigate = useNavigate();
+    const { logout } = useContext(UserDataContext);
+    const token = localStorage.getItem('token');
 
-  useEffect(() => {
-    const logoutUser = async () => {
-      try {
-        const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/users/logout`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+    useEffect(() => {
+        const handleLogout = async () => {
+            if (!token) {
+                logout();
+                navigate('/login');
+                return;
+            }
 
-        if (response.status === 200) {
-          localStorage.removeItem('token');
-          navigate('/login');
-        }
-      } catch (err) {
-        console.error('Logout failed:', err);
-        localStorage.removeItem('token');
-        navigate('/login');
-      }
-    };
+            try {
+                await axios.get(`${import.meta.env.VITE_BASE_URL}/users/logout`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+            } catch (error) {
+                console.error("Logout failed:", error);
+            } finally {
+                logout();
+                navigate('/login');
+            }
+        };
 
-    logoutUser();
-  }, [navigate, token]);
+        handleLogout();
+    }, [navigate, logout, token]);
 
-  return <div>Logging out...</div>;
+    return (
+        <div className='p-6 text-center'>
+            <p>Logging out...</p>
+        </div>
+    );
 };
 
 export default UserLogout;
