@@ -6,19 +6,19 @@ A Node.js backend for a ride-sharing app with **user and captain authentication*
 
 ## Table of Contents
 
-1. [Project Setup](#project-setup)  
-2. [Folder Structure](#folder-structure)  
-3. [Environment Variables](#environment-variables)  
-4. [Running the Server](#running-the-server)  
-5. [API Endpoints](#api-endpoints)  
-   * [Users API](#1-users-api-api-v1-users)  
-   * [Captains API](#2-captains-api-api-v1-captains)  
-   * [Ride API](#3-ride-api-api-v1-rides)  
-   * [Map API](#4-map-api-api-v1-maps)  
-6. [Authentication Flow](#authentication-flow)  
-7. [Real-Time Updates with Socket.io](#real-time-updates-with-socketio)  
-8. [Error Handling & Validation](#error-handling--validation)  
-9. [Token Blacklisting](#token-blacklisting)  
+1. [Project Setup](#project-setup)
+2. [Folder Structure](#folder-structure)
+3. [Environment Variables](#environment-variables)
+4. [Running the Server](#running-the-server)
+5. [API Endpoints](#api-endpoints)
+   - [Users API](#1-users-api-api-v1-users)
+   - [Captains API](#2-captains-api-api-v1-captains)
+   - [Ride API](#3-ride-api-api-v1-rides)
+   - [Map API](#4-map-api-api-v1-maps)
+6. [Authentication Flow](#authentication-flow)
+7. [Real-Time Updates with Socket.io](#real-time-updates-with-socketio)
+8. [Error Handling & Validation](#error-handling--validation)
+9. [Token Blacklisting](#token-blacklisting)
 
 ---
 
@@ -30,7 +30,7 @@ A Node.js backend for a ride-sharing app with **user and captain authentication*
 git clone <your-repo-url>
 cd backend
 npm install
-````
+```
 
 ### Environment Variables
 
@@ -95,23 +95,23 @@ Create a `.env` file in the root and configure:
         └── 📄 socket.js
 ```
 
-* `controllers/` → Handle API request logic
-* `services/` → Business logic & database interactions
-* `middlewares/` → Auth, validation, error handling
-* `models/` → Mongoose schemas for Users, Captains, Rides
-* `utils/` → Helper functions (JWT generation, async wrapper, socket events)
+- `controllers/` → Handle API request logic
+- `services/` → Business logic & database interactions
+- `middlewares/` → Auth, validation, error handling
+- `models/` → Mongoose schemas for Users, Captains, Rides
+- `utils/` → Helper functions (JWT generation, async wrapper, socket events)
 
 ---
 
 ## Running the Server
 
-* **Development:**
+- **Development:**
 
 ```bash
 npm run dev
 ```
 
-* **Production:**
+- **Production:**
 
 ```bash
 npm start
@@ -149,11 +149,14 @@ Server runs on the port defined in `.env` (`SERVER_PORT`).
 {
   "message": "User registered successfully",
   "user": {
-    "id": "68d68e6d763ead0d89c3d09d",
-    "fullName": "Ashu Dhakad",
+    "id": "68d80abf0106a6fd7e7bc389",
+    "fullName": {
+      "firstName": "Ashu",
+      "lastName": "Dhakad"
+    },
     "email": "ashu@gmail.com"
   },
-  "token": "<JWT_TOKEN>"
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZDgwYWJmMDEwNmE2ZmQ3ZTdiYzM4OSIsImlhdCI6MTc1ODk4ODk5MSwiZXhwIjoxNzU5NTkzNzkxfQ.Rg483RkqvYJDK6yoC05H8iOEXB1AZB8m1K3_aYNfKFc"
 }
 ```
 
@@ -177,13 +180,16 @@ Server runs on the port defined in `.env` (`SERVER_PORT`).
 
 ```json
 {
-  "message": "User logged in successfully",
+  "message": "Logged in successfully",
   "user": {
-    "id": "68d68e6d763ead0d89c3d09d",
-    "fullName": "Ashu Dhakad",
+    "id": "68d80abf0106a6fd7e7bc389",
+    "fullName": {
+      "firstName": "Ashu",
+      "lastName": "Dhakad"
+    },
     "email": "ashu@gmail.com"
   },
-  "token": "<JWT_TOKEN>"
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZDgwYWJmMDEwNmE2ZmQ3ZTdiYzM4OSIsImlhdCI6MTc1ODk4OTA0MiwiZXhwIjoxNzU5NTkzODQyfQ.-1BDftlSi4a5Y2Y4J6BJ-73vxf5GvIUJhtyq5F5spJc"
 }
 ```
 
@@ -201,10 +207,16 @@ Server runs on the port defined in `.env` (`SERVER_PORT`).
 
 ```json
 {
-  "user": {
-    "id": "68d68e6d763ead0d89c3d09d",
-    "fullName": "Ashu Dhakad",
-    "email": "ashu@gmail.com"
+  "status": "success",
+  "data": {
+    "user": {
+      "id": "68d80abf0106a6fd7e7bc389",
+      "fullName": {
+        "firstName": "Ashu",
+        "lastName": "Dhakad"
+      },
+      "email": "ashu@gmail.com"
+    }
   }
 }
 ```
@@ -261,17 +273,14 @@ Server runs on the port defined in `.env` (`SERVER_PORT`).
 {
   "message": "Captain registered successfully",
   "captain": {
-    "id": "68d69008763ead0d89c3d0a8",
-    "fullName": "Ramesh Sharma",
-    "email": "ramesh@example.com",
-    "vehicle": {
-      "color": "Red",
-      "plate": "MH12AB1234",
-      "capacity": 4,
-      "vehicleType": "car"
-    }
+    "id": "68d80d18013d5c6aae416b0a",
+    "fullName": {
+      "firstName": "Ramesh",
+      "lastName": "Sharma"
+    },
+    "email": "ramesh@example.com"
   },
-  "token": "<JWT_TOKEN>"
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZDgwZDE4MDEzZDVjNmFhZTQxNmIwYSIsImlhdCI6MTc1ODk4OTU5MiwiZXhwIjoxNzU5NTk0MzkyfQ.dRD3xbMGXpGJlY7JMkLlErPmh9dhRaBqaYaiB7nVYXA"
 }
 ```
 
@@ -295,19 +304,16 @@ Server runs on the port defined in `.env` (`SERVER_PORT`).
 
 ```json
 {
-  "message": "Captain logged in successfully",
+  "message": "Logged in successfully",
   "captain": {
-    "id": "68d69008763ead0d89c3d0a8",
-    "fullName": "Ramesh Sharma",
-    "email": "ramesh@example.com",
-    "vehicle": {
-      "color": "Red",
-      "plate": "MH12AB1234",
-      "capacity": 4,
-      "vehicleType": "car"
-    }
+    "id": "68d80d18013d5c6aae416b0a",
+    "fullName": {
+      "firstName": "Ramesh",
+      "lastName": "Sharma"
+    },
+    "email": "ramesh@example.com"
   },
-  "token": "<JWT_TOKEN>"
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZDgwZDE4MDEzZDVjNmFhZTQxNmIwYSIsImlhdCI6MTc1ODk4OTcxMiwiZXhwIjoxNzU5NTk0NTEyfQ.hoNNDxtaCnEjgECVTxo60Z7lV4wWcC9YYD_yk-2LtUk"
 }
 ```
 
@@ -324,19 +330,33 @@ Server runs on the port defined in `.env` (`SERVER_PORT`).
 **Response:**
 
 ```json
+
 {
-  "captain": {
-    "id": "68d69008763ead0d89c3d0a8",
-    "fullName": "Ramesh Sharma",
-    "email": "ramesh@example.com",
-    "vehicle": {
-      "color": "Red",
-      "plate": "MH12AB1234",
-      "capacity": 4,
-      "vehicleType": "car"
+    "status": "success",
+    "data": {
+        "captain": {
+            "fullname": {
+                "firstName": "Ramesh",
+                "lastName": "Sharma"
+            },
+            "_id": "68d80d18013d5c6aae416b0a",
+            "email": "ramesh@example.com",
+            "status": "inactive",
+            "vehicle": {
+                "color": "Red",
+                "plate": "MH12AB1234",
+                "capacity": 4,
+                "vehicleType": "car",
+                "_id": "68d80d18013d5c6aae416b0b"
+            },
+            "createdAt": "2025-09-27T16:13:12.792Z",
+            "updatedAt": "2025-09-27T16:13:12.792Z",
+            "__v": 0
+        }
     }
-  }
 }
+
+
 ```
 
 ---
@@ -634,7 +654,7 @@ const socket = io("http://localhost:3000");
 socket.emit("join", { userId: "<userId>", userType: "user" });
 
 socket.on("ride-accepted", (ride) => {
-    console.log("Ride accepted:", ride);
+  console.log("Ride accepted:", ride);
 });
 ```
 
@@ -642,17 +662,17 @@ socket.on("ride-accepted", (ride) => {
 
 ## Error Handling & Validation
 
-* **Global Error Handler:** Centralized in `globalErrorHandler.js`, catches all errors and returns uniform responses.
-* **Async Error Wrapper:** `catchAsync.js` wraps async controller functions.
-* **Input Validation:** Using `express-validator` to validate user and captain registration.
+- **Global Error Handler:** Centralized in `globalErrorHandler.js`, catches all errors and returns uniform responses.
+- **Async Error Wrapper:** `catchAsync.js` wraps async controller functions.
+- **Input Validation:** Using `express-validator` to validate user and captain registration.
 
 ---
 
 ## Token Blacklisting
 
-* JWTs are **invalidated on logout** to prevent reuse.
-* Logout saves the token in `BlacklistToken` collection.
-* Middleware checks blacklist before granting access to protected routes.
+- JWTs are **invalidated on logout** to prevent reuse.
+- Logout saves the token in `BlacklistToken` collection.
+- Middleware checks blacklist before granting access to protected routes.
 
 **How It Works:**
 
@@ -664,10 +684,10 @@ socket.on("ride-accepted", (ride) => {
 
 ## Summary
 
-* Modular backend with **users, captains, rides, maps**
-* Secure authentication with JWT and blacklisting
-* Validation and centralized error handling
-* Real-time ride updates with Socket.io
-* Fully documented endpoints for frontend integration
+- Modular backend with **users, captains, rides, maps**
+- Secure authentication with JWT and blacklisting
+- Validation and centralized error handling
+- Real-time ride updates with Socket.io
+- Fully documented endpoints for frontend integration
 
 ✅ **Ready for frontend integration**: All APIs are protected where necessary, and Socket.io events handle real-time ride updates.
