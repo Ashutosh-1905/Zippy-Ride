@@ -3,13 +3,12 @@ import { useNavigate, Link } from "react-router-dom";
 import { registerUser } from "../api/userApi";
 import { UserDataContext } from "../context/UserContext";
 
-export default function UserSignup() {
+const UserSignup = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-
   const { setUser } = useContext(UserDataContext);
   const navigate = useNavigate();
 
@@ -18,10 +17,7 @@ export default function UserSignup() {
     setError("");
     try {
       const newUser = {
-        fullname: {
-          firstName,
-          lastName,
-        },
+        fullname: { firstName, lastName },
         email,
         password,
       };
@@ -32,7 +28,7 @@ export default function UserSignup() {
     } catch (err) {
       setError(
         err?.response?.data?.message ||
-          err?.response?.data?.errors?.map((e) => e.msg).join(", ") ||
+          err?.response?.data?.errors?.map(e => e.msg).join(", ") ||
           "Signup failed"
       );
     }
@@ -40,49 +36,53 @@ export default function UserSignup() {
 
   return (
     <div className="h-screen flex justify-center items-center">
-      <form onSubmit={handleSubmit} className="p-6 rounded bg-white w-80 shadow-lg">
-        <h2 className="text-xl font-semibold mb-4">Sign Up</h2>
-
+      <form onSubmit={handleSubmit} className="p-6 bg-white rounded shadow-lg w-80">
+        <h2 className="text-xl font-semibold mb-4">User Signup</h2>
         <input
           type="text"
           placeholder="First Name"
-          className="mb-2 p-2 border rounded w-full"
           value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
+          onChange={e => setFirstName(e.target.value)}
+          className="mb-2 p-2 border rounded w-full"
           required
         />
         <input
           type="text"
           placeholder="Last Name"
-          className="mb-2 p-2 border rounded w-full"
           value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
+          onChange={e => setLastName(e.target.value)}
+          className="mb-2 p-2 border rounded w-full"
           required
         />
         <input
           type="email"
           placeholder="Email"
-          className="mb-2 p-2 border rounded w-full"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={e => setEmail(e.target.value)}
+          className="mb-2 p-2 border rounded w-full"
           required
         />
         <input
           type="password"
           placeholder="Password"
-          className="mb-2 p-2 border rounded w-full"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={e => setPassword(e.target.value)}
+          className="mb-2 p-2 border rounded w-full"
           required
         />
-
         {error && <p className="text-red-600 mb-2">{error}</p>}
-
-        <button className="w-full py-2 bg-black text-white rounded" type="submit">Sign Up</button>
-        <p className="mt-3 text-sm">
-          Already have an account? <Link className="text-blue-600" to="/login">Login here</Link>
+        <button type="submit" className="w-full py-2 bg-black text-white rounded">Sign Up</button>
+        <p className="text-center mt-3">
+          Already have an account? <Link to="/login" className="text-blue-600">Login here</Link>
         </p>
+        <div className="mt-3">
+          <Link to="/captain-signup" className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded block text-center">
+            Sign up as Captain
+          </Link>
+        </div>
       </form>
     </div>
   );
-}
+};
+
+export default UserSignup;

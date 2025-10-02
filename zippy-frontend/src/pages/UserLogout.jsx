@@ -1,9 +1,9 @@
-import { useEffect, useContext } from "react";
+import React, { useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { logoutUser } from "../api/userApi";
 import { UserDataContext } from "../context/UserContext";
 
-export default function UserLogout() {
+const UserLogout = () => {
   const { token, setUser } = useContext(UserDataContext);
   const navigate = useNavigate();
 
@@ -13,12 +13,22 @@ export default function UserLogout() {
       navigate("/login");
       return;
     }
+
     logoutUser(token)
-      .finally(() => {
+      .then(() => {
+        setUser(null, null);
+        navigate("/login");
+      })
+      .catch(() => {
+        // Even if logout request fails, clear local and redirect
         setUser(null, null);
         navigate("/login");
       });
   }, [token, setUser, navigate]);
 
-  return <div className="h-screen flex items-center justify-center">Logging out...</div>;
-}
+  return (
+    <div className="h-screen flex items-center justify-center">Logging out...</div>
+  );
+};
+
+export default UserLogout;

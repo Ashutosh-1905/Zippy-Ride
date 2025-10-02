@@ -2,7 +2,7 @@ import React, { createContext, useState } from 'react';
 
 export const UserDataContext = createContext();
 
-const TOKEN_KEY = 'token';
+const TOKEN_KEY = 'userToken';
 const USER_KEY = 'userData';
 
 const UserContext = ({ children }) => {

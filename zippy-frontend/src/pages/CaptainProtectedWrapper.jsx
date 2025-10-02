@@ -1,38 +1,38 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getUserProfile } from "../api/userApi";
-import { UserDataContext } from "../context/UserContext";
+import { getCaptainProfile } from "../api/captainApi";
+import { CaptainDataContext } from "../context/CaptainContext";
 
-const UserProtectedWrapper = ({ children }) => {
-  const { token, setUser } = useContext(UserDataContext);
+const CaptainProtectedWrapper = ({ children }) => {
+  const { token, setCaptain } = useContext(CaptainDataContext);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!token) {
-      setUser(null, null);
-      navigate("/login");
+      setCaptain(null, null);
+      navigate("/captain-login");
       return;
     }
 
-    getUserProfile(token)
+    getCaptainProfile(token)
       .then((res) => {
         if (res.status === 200) {
-          setUser(res.data.data.user, token);
+          setCaptain(res.data.data.captain, token);
           setLoading(false);
         } else {
           throw new Error("Unauthorized");
         }
       })
       .catch(() => {
-        setUser(null, null);
-        navigate("/login");
+        setCaptain(null, null);
+        navigate("/captain-login");
       });
-  }, [token, setUser, navigate]);
+  }, [token, setCaptain, navigate]);
 
   if (loading) return <div>Loading...</div>;
 
   return <>{children}</>;
 };
 
-export default UserProtectedWrapper;
+export default CaptainProtectedWrapper;
