@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useCallback } from 'react';
 
 export const CaptainDataContext = createContext();
 
@@ -6,28 +6,29 @@ const TOKEN_KEY = 'captainToken';
 const CAPTAIN_KEY = 'captainData';
 
 const CaptainContext = ({ children }) => {
-  const [captain, setCaptain] = useState(() => {
+  const [captain, setCaptainState] = useState(() => {
     const stored = localStorage.getItem(CAPTAIN_KEY);
     return stored ? JSON.parse(stored) : null;
   });
-  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY) || '');
+  const [token, setTokenState] = useState(() => localStorage.getItem(TOKEN_KEY) || '');
 
-  const setCaptainData = (captainData, tokenData) => {
+  // Memoize the setter function to avoid triggering unnecessary re-renders
+  const setCaptain = useCallback((captainData, tokenData) => {
     if (captainData && tokenData) {
-      setCaptain(captainData);
-      setToken(tokenData);
+      setCaptainState(captainData);
+      setTokenState(tokenData);
       localStorage.setItem(CAPTAIN_KEY, JSON.stringify(captainData));
       localStorage.setItem(TOKEN_KEY, tokenData);
     } else {
-      setCaptain(null);
-      setToken('');
+      setCaptainState(null);
+      setTokenState('');
       localStorage.removeItem(CAPTAIN_KEY);
       localStorage.removeItem(TOKEN_KEY);
     }
-  };
+  }, []);
 
   return (
-    <CaptainDataContext.Provider value={{ captain, token, setCaptain: setCaptainData }}>
+    <CaptainDataContext.Provider value={{ captain, token, setCaptain }}>
       {children}
     </CaptainDataContext.Provider>
   );

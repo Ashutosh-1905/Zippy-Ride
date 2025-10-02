@@ -8,21 +8,23 @@ import UserSignup from "./pages/UserSignup";
 import Home from "./pages/Home";
 import UserProtectedWrapper from "./pages/UserProtectedWrapper";
 import UserLogout from "./pages/UserLogout";
+import RideRequest from "./pages/RideRequest";
 
 // Captain Pages
 import CaptainLogin from "./pages/CaptainLogin";
 import CaptainSignup from "./pages/CaptainSignup";
-import CaptainHome from "./pages/CaptainHome";
+import CaptainHome from "./pages/CaptainHome.jsx";
+
 import CaptainProtectedWrapper from "./pages/CaptainProtectedWrapper";
 import CaptainLogout from "./pages/CaptainLogout";
 
 const App = () => {
   return (
     <Routes>
-      {/* Landing */}
+      {/* Landing Page */}
       <Route path="/" element={<Start />} />
 
-      {/* User routes */}
+      {/* User Authentication */}
       <Route path="/login" element={<UserLogin />} />
       <Route path="/signup" element={<UserSignup />} />
       <Route
@@ -42,7 +44,17 @@ const App = () => {
         }
       />
 
-      {/* Captain routes */}
+      {/* User Ride Request */}
+      <Route
+        path="/request-ride"
+        element={
+          <UserProtectedWrapper>
+            <RideRequest />
+          </UserProtectedWrapper>
+        }
+      />
+
+      {/* Captain Authentication */}
       <Route path="/captain-login" element={<CaptainLogin />} />
       <Route path="/captain-signup" element={<CaptainSignup />} />
       <Route

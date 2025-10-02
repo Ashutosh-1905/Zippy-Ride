@@ -15,23 +15,27 @@ const UserProtectedWrapper = ({ children }) => {
       return;
     }
 
-    getUserProfile(token)
-      .then((res) => {
+    const fetchProfile = async () => {
+      try {
+        const res = await getUserProfile(token);
         if (res.status === 200) {
           setUser(res.data.data.user, token);
           setLoading(false);
-        } else {
-          throw new Error("Unauthorized");
-        }
-      })
-      .catch(() => {
+        } else throw new Error("Unauthorized");
+      } catch (error) {
         setUser(null, null);
         navigate("/login");
-      });
+      }
+    };
+
+    fetchProfile();
   }, [token, setUser, navigate]);
 
-  if (loading) return <div>Loading...</div>;
-
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">Loading...</div>
+    );
+  }
   return <>{children}</>;
 };
 
