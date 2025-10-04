@@ -51,7 +51,8 @@ export const createRide = async ({ user, pickup, destination, vehicleType }) => 
     otp: getOtp(6),
   });
 
-  return newRide;
+  // Return ride with OTP included explicitly
+  return Ride.findById(newRide._id).select("+otp").populate("user");
 };
 
 export const confirmRide = async ({ rideId, captain }) => {
@@ -91,6 +92,10 @@ export const startRide = async ({ rideId, otp, captain }) => {
     throw new AppError("Invalid OTP.", 400);
   }
 
+  if (ride.status !== "accepted") {
+    throw new AppError("Ride is not in accepted status.", 400);
+  }
+
   // Update ride status to 'ongoing'
   const updatedRide = await Ride.findByIdAndUpdate(
     rideId,
@@ -103,7 +108,6 @@ export const startRide = async ({ rideId, otp, captain }) => {
   return updatedRide;
 };
 
-// Captain ride ko end karega
 export const endRide = async ({ rideId, captain }) => {
   const ride = await Ride.findById(rideId).populate("user").populate("captain");
 
@@ -111,19 +115,16 @@ export const endRide = async ({ rideId, captain }) => {
     throw new AppError("Ride not found.", 404);
   }
 
-  // Captain check
   const rideCaptainId =
     typeof ride.captain === "object" ? ride.captain._id : ride.captain;
   if (rideCaptainId.toString() !== captain._id.toString()) {
     throw new AppError("You are not the assigned captain for this ride.", 403);
   }
 
-  // Sirf ongoing ride ko hi end kar sakte hain
   if (ride.status !== "ongoing") {
     throw new AppError("Ride is not currently ongoing.", 400);
   }
 
-  // Update ride status to 'completed'
   const updatedRide = await Ride.findByIdAndUpdate(
     rideId,
     { status: "completed", endTime: new Date() },

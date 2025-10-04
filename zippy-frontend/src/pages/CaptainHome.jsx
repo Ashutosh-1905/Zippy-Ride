@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useContext, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { useSocket } from "../context/SocketContext.jsx";
 import { CaptainDataContext } from "../context/CaptainContext.jsx";
 import axios from "axios";
@@ -11,6 +12,7 @@ const LS_ACCEPTED_KEY = "acceptedRide";
 const CaptainHome = () => {
   const { captain, token } = useContext(CaptainDataContext);
   const { socket } = useSocket();
+  const navigate = useNavigate();
 
   const captainId = captain?._id || captain?.id;
 
@@ -73,22 +75,23 @@ const CaptainHome = () => {
     };
   }, [socket, captainId, token, handleNewRide]);
 
-  const acceptRide = async (rideId) => {
-    try {
-      await axios.post(
-        `${SOCKET_URL}/api/v1/rides/accept-ride`,
-        { rideId },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+ const acceptRide = async (rideId) => {
+  try {
+    await axios.post(
+      `${SOCKET_URL}/api/v1/rides/accept-ride`,
+      { rideId },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
 
-      const ride = pendingRides.find((r) => r._id === rideId);
-      setAcceptedRide(ride);
-      setPendingRides((prev) => prev.filter((r) => r._id !== rideId));
-      alert("Ride accepted! Start your trip.");
-    } catch (error) {
-      alert(error.response?.data?.message || "Could not accept ride.");
-    }
-  };
+    const ride = pendingRides.find((r) => r._id === rideId);
+    setAcceptedRide(ride);
+    setPendingRides((prev) => prev.filter((r) => r._id !== rideId));
+    alert("Ride accepted! Please start your trip.");
+    navigate("/ride-start", { state: { ride } });
+  } catch (error) {
+    alert(error.response?.data?.message || "Could not accept ride.");
+  }
+};
 
   return (
     <div className="max-w-lg mx-auto p-6 space-y-6">

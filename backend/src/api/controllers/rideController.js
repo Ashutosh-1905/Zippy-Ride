@@ -6,46 +6,42 @@ import AppError from "../../utils/AppError.js";
 import User from "../../models/User.js";
 
 export const requestRide = catchAsync(async (req, res, next) => {
-    const { pickup, destination, vehicleType } = req.body;
-    const { user } = req;
+  const { pickup, destination, vehicleType } = req.body;
+  const { user } = req;
 
-    console.log("New ride request:", pickup, destination, vehicleType);
+  console.log("New ride request:", pickup, destination, vehicleType);
 
-    const newRide = await createRide({ user, pickup, destination, vehicleType });
+  const newRide = await createRide({ user, pickup, destination, vehicleType });
 
-    const pickupCoordinates = await getAddressCoordinates(pickup);
-    if (!pickupCoordinates) {
-        throw new AppError("Could not find coordinates for pickup location.", 400);
-    }
+  const pickupCoordinates = await getAddressCoordinates(pickup);
+  if (!pickupCoordinates) {
+    throw new AppError("Could not find coordinates for pickup location.", 400);
+  }
 
-    // FIX: pass [longitude, latitude] to the radius function!
-    const captainsInRadius = await getCaptainsInTheRadius(
-        pickupCoordinates.lon,
-        pickupCoordinates.lat,
-        10
-    );
+  const captainsInRadius = await getCaptainsInTheRadius(
+    pickupCoordinates.lon,
+    pickupCoordinates.lat,
+    10
+  );
 
-    const rideWithUser = await newRide.populate('user');
+  const activeCaptains = captainsInRadius.filter(c => c.socketId);
 
-    const activeCaptains = captainsInRadius.filter(c => c.socketId);
+  if (activeCaptains.length === 0) {
+    console.log("No active captains found in radius with valid socketId");
+  }
 
-    if (activeCaptains.length === 0) {
-        console.log("No active captains found in radius with valid socketId");
-    }
-
-    activeCaptains.forEach(captain => {
-        sendMessageToSocketId(captain.socketId, {
-            event: 'new-ride-request',
-            data: rideWithUser,
-        });
+  activeCaptains.forEach((captain) => {
+    sendMessageToSocketId(captain.socketId, {
+      event: 'new-ride-request',
+      data: newRide,
     });
+  });
 
-    res.status(201).json({
-        message: "Ride request submitted. Waiting for a captain...",
-        ride: rideWithUser,
-    });
+  res.status(201).json({
+    message: "Ride requested successfully. Share the OTP with your captain.",
+    ride: newRide,
+  });
 });
-
 
 export const getRideFare = catchAsync(async (req, res, next) => {
   const { pickup, destination } = req.query;
@@ -78,8 +74,12 @@ export const acceptRide = catchAsync(async (req, res, next) => {
 });
 
 export const startRideByCaptain = catchAsync(async (req, res, next) => {
-  const { rideId, otp } = req.query;
+  const { rideId, otp } = req.body;
   const { captain } = req;
+
+  if (!rideId || !otp) {
+    throw new AppError("Ride ID and OTP are required to start the ride", 400);
+  }
 
   const updatedRide = await startRide({ rideId, otp, captain });
 
