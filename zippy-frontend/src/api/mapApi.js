@@ -8,6 +8,7 @@ export const searchLocation = async (query) => {
     q: query,
     addressdetails: 1,
     limit: 5,
+    "accept-language": "en", // always use English
   });
 
   const response = await axios.get(`${NOMINATIM_BASE_URL}?${params}`);

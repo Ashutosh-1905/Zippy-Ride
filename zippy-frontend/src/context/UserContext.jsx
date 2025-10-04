@@ -1,19 +1,17 @@
-import React, { createContext, useState, useCallback } from 'react';
-
+import React, { createContext, useState, useCallback } from "react";
 export const UserDataContext = createContext();
 
-const TOKEN_KEY = 'userToken';
-const USER_KEY = 'userData';
+const TOKEN_KEY = "userToken";
+const USER_KEY = "userData";
 
-const UserContext = ({ children }) => {
+const UserProvider = ({ children }) => {
   const [user, setUser_] = useState(() => {
     const storedUser = localStorage.getItem(USER_KEY);
     return storedUser ? JSON.parse(storedUser) : null;
   });
-  const [token, setToken_] = useState(() => localStorage.getItem(TOKEN_KEY) || '');
+  const [token, setToken_] = useState(() => localStorage.getItem(TOKEN_KEY) || "");
 
-  // Only create setUserData function once (memoized!)
-  const setUserData = useCallback((userData, tokenData) => {
+  const setUser = useCallback((userData, tokenData) => {
     if (userData && tokenData) {
       setUser_(userData);
       setToken_(tokenData);
@@ -21,17 +19,17 @@ const UserContext = ({ children }) => {
       localStorage.setItem(TOKEN_KEY, tokenData);
     } else {
       setUser_(null);
-      setToken_('');
+      setToken_("");
       localStorage.removeItem(USER_KEY);
       localStorage.removeItem(TOKEN_KEY);
     }
   }, []);
 
   return (
-    <UserDataContext.Provider value={{ user, token, setUser: setUserData }}>
+    <UserDataContext.Provider value={{ user, token, setUser }}>
       {children}
     </UserDataContext.Provider>
   );
 };
 
-export default UserContext;
+export default UserProvider;

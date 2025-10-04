@@ -1,37 +1,35 @@
-import React, { createContext, useState, useCallback } from 'react';
+import React, { createContext, useState, useEffect } from "react";
 
 export const CaptainDataContext = createContext();
 
-const TOKEN_KEY = 'captainToken';
-const CAPTAIN_KEY = 'captainData';
-
-const CaptainContext = ({ children }) => {
-  const [captain, setCaptainState] = useState(() => {
-    const stored = localStorage.getItem(CAPTAIN_KEY);
-    return stored ? JSON.parse(stored) : null;
+export const CaptainProvider = ({ children }) => {
+  const [captain, setCaptain] = useState(() => {
+    const savedCaptain = localStorage.getItem("captain");
+    return savedCaptain ? JSON.parse(savedCaptain) : null;
   });
-  const [token, setTokenState] = useState(() => localStorage.getItem(TOKEN_KEY) || '');
 
-  // Memoize the setter function to avoid triggering unnecessary re-renders
-  const setCaptain = useCallback((captainData, tokenData) => {
-    if (captainData && tokenData) {
-      setCaptainState(captainData);
-      setTokenState(tokenData);
-      localStorage.setItem(CAPTAIN_KEY, JSON.stringify(captainData));
-      localStorage.setItem(TOKEN_KEY, tokenData);
-    } else {
-      setCaptainState(null);
-      setTokenState('');
-      localStorage.removeItem(CAPTAIN_KEY);
-      localStorage.removeItem(TOKEN_KEY);
-    }
-  }, []);
+  const [token, setToken] = useState(() => localStorage.getItem("token") || null);
+
+  useEffect(() => {
+    if (captain) localStorage.setItem("captain", JSON.stringify(captain));
+    else localStorage.removeItem("captain");
+  }, [captain]);
+
+  useEffect(() => {
+    if (token) localStorage.setItem("token", token);
+    else localStorage.removeItem("token");
+  }, [token]);
+
+  const updateCaptain = (captainData, tokenData) => {
+    setCaptain(captainData);
+    setToken(tokenData);
+  };
 
   return (
-    <CaptainDataContext.Provider value={{ captain, token, setCaptain }}>
+    <CaptainDataContext.Provider value={{ captain, token, setCaptain: updateCaptain, setToken }}>
       {children}
     </CaptainDataContext.Provider>
   );
 };
 
-export default CaptainContext;
+export default CaptainProvider;

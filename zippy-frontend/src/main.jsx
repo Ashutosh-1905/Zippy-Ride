@@ -1,17 +1,22 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "./index.css";
-import App from "./App";
+import App from "./App.jsx";
+import "./index.css"; // To enable Tailwind
 import { BrowserRouter } from "react-router-dom";
-import UserContext from "./context/UserContext";
-import CaptainContext from "./context/CaptainContext";
+import UserProvider from "./context/UserContext.jsx";
+import { CaptainProvider } from "./context/CaptainContext.jsx";
+import { SocketProvider } from "./context/SocketContext.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <CaptainContext>
-    <UserContext>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </UserContext>
-  </CaptainContext>
+  <React.StrictMode>
+    <BrowserRouter>
+      <UserProvider>
+        <CaptainProvider>
+          <SocketProvider>
+            <App />
+          </SocketProvider>
+        </CaptainProvider>
+      </UserProvider>
+    </BrowserRouter>
+  </React.StrictMode>
 );

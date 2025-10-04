@@ -1,56 +1,59 @@
 import React, { useState, useContext } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { loginCaptain } from "../api/captainApi";
-import { CaptainDataContext } from "../context/CaptainContext";
+import { CaptainDataContext } from "../context/CaptainContext.jsx";
 
 const CaptainLogin = () => {
+  const { setCaptain } = useContext(CaptainDataContext);
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const { setCaptain } = useContext(CaptainDataContext);
-  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     try {
       const res = await loginCaptain({ email, password });
-      const { captain, token } = res.data;
+      const { captain, token } = res.data; // backend should respond with these keys
+      if (!token || !captain) throw new Error("Invalid response from server");
+
       setCaptain(captain, token);
       navigate("/captain-home");
     } catch (err) {
-      setError(err?.response?.data?.message || "Login failed");
+      setError(err.response?.data?.message || err.message || "Login failed");
     }
   };
 
   return (
-    <div className="h-screen flex justify-center items-center">
-      <form onSubmit={handleSubmit} className="p-6 rounded bg-white w-80 shadow-lg">
+    <div className="h-screen flex items-center justify-center bg-gray-100">
+      <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-lg w-80">
         <h2 className="text-xl font-semibold mb-4">Captain Login</h2>
+
         <input
           type="email"
           placeholder="Email"
           value={email}
-          onChange={e => setEmail(e.target.value)}
-          className="mb-3 p-2 border rounded w-full"
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full border p-2 rounded mb-3"
           required
         />
+
         <input
           type="password"
           placeholder="Password"
           value={password}
-          onChange={e => setPassword(e.target.value)}
-          className="mb-3 p-2 border rounded w-full"
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full border p-2 rounded mb-3"
           required
         />
-        {error && <p className="text-red-600 mb-2">{error}</p>}
-        <button className="w-full py-2 bg-black text-white rounded" type="submit">Login</button>
-        <p className="mt-3 text-sm">
-          New here? <Link to="/captain-signup" className="text-blue-600">Sign up here</Link>
-        </p>
-        <p className="mt-2 text-sm">
-          Are you a user? <Link to="/login" className="text-blue-600">Login as User</Link>
-        </p>
+
+        {error && <p className="text-red-600 mb-3">{error}</p>}
+
+        <button type="submit" className="bg-black text-white py-2 rounded w-full hover:bg-gray-900">
+          Login
+        </button>
       </form>
     </div>
   );

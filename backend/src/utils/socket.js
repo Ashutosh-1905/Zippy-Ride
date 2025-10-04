@@ -6,94 +6,77 @@ let io;
 
 export const initializeSocket = (server) => {
   io = new Server(server, {
-    cors: {
-      origin: '*',
-      methods: ['GET', 'POST'],
-    },
+    cors: { origin: "*", methods: ["GET", "POST"] },
   });
 
   io.on("connection", (socket) => {
     console.log(`Client connected: ${socket.id}`);
 
-    socket.on("join", async (data) => {
-      const { userId, userType } = data;
+    socket.on("join", async ({ userId, userType }) => {
       try {
+        if (!userId || !userType) {
+          return console.log("Join event missing userId or userType");
+        }
         if (userType === "user") {
           await User.findByIdAndUpdate(userId, { socketId: socket.id });
-          console.log(`User ${userId} joined with socket ID: ${socket.id}`);
+          console.log(`User ${userId} joined with socketId ${socket.id}`);
         } else if (userType === "captain") {
-          await Captain.findByIdAndUpdate(userId, { socketId: socket.id });
-          console.log(`Captain ${userId} joined with socket ID: ${socket.id}`);
+          await Captain.findByIdAndUpdate(userId, { 
+            socketId: socket.id, 
+            status: "active"
+          });
+          console.log(`Captain ${userId} joined with socketId ${socket.id}`);
         }
-      } catch (error) {
-        console.error("Error joining socket:", error);
+      } catch (err) {
+        console.error("Error in join event:", err);
       }
     });
 
-    // socket.on("update-location-captain", async (data) => {
-    //   const { userId, location } = data;
-    //   if (location && typeof location.lat === "number" && typeof location.lng === "number") {
-    //     try {
-    //       await Captain.findByIdAndUpdate(userId, {
-    //         currentLocation: {
-    //           type: "Point",
-    //           coordinates: [location.lng, location.lat], // GeoJSON expects [lng, lat]
-    //         },
-    //       });
-    //     } catch (error) {
-    //       console.error("Error updating captain location:", error);
-    //     }
-    //   } else {
-    //     socket.emit("error", { message: "Invalid location data" });
-    //   }
-    // });
-
     socket.on("updateLocation", async ({ userId, userType, location }) => {
-  try {
-    if (userType === "user") {
-      await User.findByIdAndUpdate(userId, {
-        currentLocation: {
-          type: "Point",
-          coordinates: [location.lng, location.lat],
-        },
-      });
-    } else if (userType === "captain") {
-      await Captain.findByIdAndUpdate(userId, {
-        currentLocation: {
-          type: "Point",
-          coordinates: [location.lng, location.lat],
-        },
-      });
-    }
-  } catch (error) {
-    console.error("Error updating location:", error);
-  }
-});
+      try {
+        if (
+          location &&
+          location.type === "Point" &&
+          Array.isArray(location.coordinates) &&
+          location.coordinates.length === 2
+        ) {
+          if (userType === "user") {
+            await User.findByIdAndUpdate(userId, { currentLocation: location });
+          } else if (userType === "captain") {
+            await Captain.findByIdAndUpdate(userId, { currentLocation: location });
+          }
+        } else {
+          console.log("Invalid location format in updateLocation", location);
+        }
+      } catch (err) {
+        console.error("Error in updateLocation:", err);
+      }
+    });
 
-    // socket.on("disconnect", async () => {
-    //   console.log(`Client disconnected: ${socket.id}`);
-    //   // Optionally clear socketId from User/Captain here if desired
-    // });
-
-socket.on("disconnect", async () => {
-  console.log(`Client disconnected: ${socket.id}`);
-  try {
-    await User.updateOne({ socketId: socket.id }, { $unset: { socketId: "" } });
-    await Captain.updateOne({ socketId: socket.id }, { $unset: { socketId: "" } });
-  } catch (error) {
-    console.error("Error clearing socketId on disconnect:", error);
-  }
-});
-
-
+    socket.on("disconnect", async () => {
+      console.log(`Client disconnected: ${socket.id}`);
+      try {
+        await User.updateOne({ socketId: socket.id }, { $unset: { socketId: "" } });
+        await Captain.updateOne(
+          { socketId: socket.id },
+          { $unset: { socketId: "" }, status: "inactive" } 
+        );
+      } catch (err) {
+        console.error("Error clearing socketId on disconnect:", err);
+      }
+    });
   });
 };
 
 export const sendMessageToSocketId = (socketId, messageObject) => {
-  if (io) {
-    console.log(`Sending message to socket ID: ${socketId} with event: ${messageObject.event}`);
-    io.to(socketId).emit(messageObject.event, messageObject.data);
-  } else {
-    console.log("Socket.io not initialized.");
+  if (!io) {
+    console.log("Socket.io not initialized");
+    return;
   }
+  if (!socketId) {
+    console.log("sendMessageToSocketId called with empty socketId");
+    return;
+  }
+  io.to(socketId).emit(messageObject.event, messageObject.data);
+  console.log(`Sent event '${messageObject.event}' to socket: ${socketId}`);
 };

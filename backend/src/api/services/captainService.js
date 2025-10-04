@@ -18,6 +18,19 @@ export const registerCaptain = async (captainData) => {
   const saltRounds = 10;
   const hashedPassword = await bcrypt.hash(captainData.password, saltRounds);
 
+  // Provide a valid GeoJSON location (Bhopal as default if not from frontend)
+  let initialLocation = {
+    type: "Point",
+    coordinates: [77.4126, 23.2599], // Bhopal center [lng, lat]
+  };
+  if (
+    captainData.currentLocation &&
+    Array.isArray(captainData.currentLocation.coordinates) &&
+    typeof captainData.currentLocation.coordinates[0] === "number"
+  ) {
+    initialLocation = captainData.currentLocation;
+  }
+
   const newCaptain = new Captain({
     fullname: {
       firstName: captainData.fullname.firstName,
@@ -26,7 +39,7 @@ export const registerCaptain = async (captainData) => {
     email: captainData.email,
     password: hashedPassword,
     vehicle: captainData.vehicle,
-    // currentLocation can be added later or defaulted by client when available
+    currentLocation: initialLocation,
   });
 
   await newCaptain.save();

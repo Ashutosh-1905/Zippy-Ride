@@ -44,6 +44,8 @@ const RideRequest = () => {
     try {
       await requestRide({ pickup, destination, vehicleType }, token);
       setMessage("Ride requested successfully. Waiting for a captain.");
+      // Optional: reset inputs or disable button here to prevent multiple requests
+      // setPickup(""); setDestination(""); setFare(null);
     } catch {
       setMessage("Failed to request ride, please try again.");
     }

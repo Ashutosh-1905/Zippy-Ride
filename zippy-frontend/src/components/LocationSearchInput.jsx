@@ -22,16 +22,21 @@ const LocationSearchInput = ({ label, value, onChange }) => {
     return () => clearTimeout(debounceTimeout);
   }, [input]);
 
-  // When a suggestion is selected, pass its display_name (string) only
   const onSelect = (place) => {
-    setInput(place.display_name);
-    onChange(place.display_name); // Pass only string address
+    let englishAddr = "";
+    if (place.address) {
+      const { city, state, country, town, village } = place.address;
+      englishAddr = [city || town || village, state, country].filter(Boolean).join(", ");
+    }
+    if (!englishAddr) englishAddr = place.display_name;
+    setInput(englishAddr);
+    onChange(englishAddr);
     setShowSuggestions(false);
   };
 
   const onInputChange = (e) => {
     setInput(e.target.value);
-    onChange(e.target.value); // Also pass string on typing
+    onChange(e.target.value);
     setShowSuggestions(true);
   };
 
@@ -40,6 +45,7 @@ const LocationSearchInput = ({ label, value, onChange }) => {
       <label className="mb-1 block font-semibold">{label}</label>
       <input
         type="text"
+        autoComplete="off"
         placeholder={`Enter ${label.toLowerCase()}...`}
         className="w-full border p-2 rounded"
         value={input}
@@ -49,15 +55,23 @@ const LocationSearchInput = ({ label, value, onChange }) => {
       />
       {showSuggestions && suggestions.length > 0 && (
         <ul className="absolute z-50 bg-white border w-full max-h-44 overflow-y-auto rounded mt-1">
-          {suggestions.map((place, idx) => (
-            <li
-              key={idx}
-              className="cursor-pointer px-3 py-2 hover:bg-gray-200"
-              onMouseDown={() => onSelect(place)}
-            >
-              {place.display_name}
-            </li>
-          ))}
+          {suggestions.map((place, idx) => {
+            const { address } = place;
+            const displayName = address
+              ? [address.city || address.town || address.village, address.state, address.country]
+                  .filter(Boolean)
+                  .join(", ")
+              : place.display_name;
+            return (
+              <li
+                key={idx}
+                className="cursor-pointer px-3 py-2 hover:bg-gray-200"
+                onMouseDown={() => onSelect(place)}
+              >
+                {displayName}
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
