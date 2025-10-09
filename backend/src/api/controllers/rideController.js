@@ -4,42 +4,45 @@ import {
   startRide,
   endRide,
   getFare,
+  acceptRide as acceptRideService, // Renamed to avoid collision
 } from "../services/rideService.js";
 import {
   getCaptainsInTheRadius,
   getAddressCoordinates,
-} from "../services/mapService.js";
+}
+from "../services/mapService.js";
 import { sendMessageToSocketId } from "../../utils/socket.js";
 import AppError from "../../utils/AppError.js";
-import User from "../../models/User.js";
-import Ride from "../../models/Ride.js";
-import { sendOtpEmail } from "../services/emailService.js";
+import User from "../../models/User.js"; // Needed for start/end ride user lookup
+
+// Constant for captain search radius
+const CAPTAIN_SEARCH_RADIUS_KM = 10;
 
 // User requests a new ride
 export const requestRide = catchAsync(async (req, res, next) => {
   const { pickup, destination, vehicleType } = req.body;
   const { user } = req;
 
-  // Create ride in DB
-  const newRide = await createRide({ user, pickup, destination, vehicleType });
-
-  // Resolve pickup coordinates
+  // 1. Resolve pickup coordinates first (fail fast check)
   const pickupCoordinates = await getAddressCoordinates(pickup);
   if (!pickupCoordinates) {
     throw new AppError("Could not find coordinates for pickup location.", 400);
   }
 
-  // Find captains nearby
+  // 2. Create ride in DB (includes fare/distance/duration calculation)
+  const newRide = await createRide({ user, pickup, destination, vehicleType });
+
+  // 3. Find and notify captains nearby
   const captainsInRadius = await getCaptainsInTheRadius(
     pickupCoordinates.lon,
     pickupCoordinates.lat,
-    10
+    CAPTAIN_SEARCH_RADIUS_KM
   );
 
   // Filter active captains with socket connections
   const activeCaptains = captainsInRadius.filter((c) => c.socketId);
 
-  // Notify captains via socket
+  // Notify captains via socket (fire-and-forget)
   activeCaptains.forEach((captain) => {
     sendMessageToSocketId(captain.socketId, {
       event: "new-ride-request",
@@ -48,8 +51,7 @@ export const requestRide = catchAsync(async (req, res, next) => {
   });
 
   res.status(201).json({
-    message:
-      "Ride requested successfully. Captains nearby have been notified to accept your request.",
+    message: "Ride requested successfully. Captains nearby have been notified to accept your request.",
     ride: newRide,
   });
 });
@@ -58,71 +60,53 @@ export const requestRide = catchAsync(async (req, res, next) => {
 export const getRideFare = catchAsync(async (req, res, next) => {
   const { pickup, destination } = req.query;
   const fares = await getFare(pickup, destination);
+
   res.status(200).json({
     message: "Fare calculated successfully.",
     fares,
   });
 });
 
-// Captain accepts ride, saves OTP atomically!
+// Captain accepts ride
 export const acceptRide = catchAsync(async (req, res, next) => {
   const { rideId } = req.body;
   const { captain } = req;
 
-  // Generate OTP and atomically update ride in DB
-  const otpCode = String(Math.floor(100000 + Math.random() * 900000));
-  const updatedRide = await Ride.findByIdAndUpdate(
+  // **OPTIMIZATION**: Delegation to service handles OTP generation, atomic DB update, and email send.
+  const { updatedRide, userSocketId } = await acceptRideService({
     rideId,
-    { $set: { status: "accepted", captain: captain._id, otp: otpCode } },
-    { new: true }
-  )
-    .populate("user")
-    .populate("captain")
-    .select("+otp");
+    captain,
+  });
 
-  if (!updatedRide) {
-    throw new AppError("Ride not found.", 404);
-  }
-
-  // Send OTP via email to user
-  const user = await User.findById(updatedRide.user);
-  if (user) {
-    try {
-      await sendOtpEmail(user.email, otpCode);
-      if (user.socketId) {
-        sendMessageToSocketId(user.socketId, {
-          event: "ride-accepted",
-          data: updatedRide,
-        });
-      }
-    } catch (error) {
-      console.error("Error sending OTP email:", error);
-    }
+  // Notify user via socket
+  if (userSocketId) {
+    sendMessageToSocketId(userSocketId, {
+      event: "ride-accepted",
+      data: updatedRide,
+    });
   }
 
   res.status(200).json({
-    message: "Ride accepted successfully and OTP sent to your email.",
+    message: "Ride accepted successfully.",
+    // The service handles email sending, simplifying the controller's success message.
     ride: updatedRide,
   });
 });
 
-// ✅ Captain starts the ride after OTP verification (fixed version)
+// Captain starts the ride after OTP verification
 export const startRideByCaptain = catchAsync(async (req, res, next) => {
   const { rideId, otp } = req.body;
   const { captain } = req;
 
   if (!rideId || !otp) {
-    console.log("Bad request: missing rideId or OTP");
     throw new AppError("Ride ID and OTP are required to start the ride", 400);
   }
 
-  console.log("Start Ride Called -- RideId:", rideId, "OTP:", `"${otp}"`);
-
-  // Let the service handle fetching, verifying, and updating
+  // Service handles verification and state update
   const updatedRide = await startRide({ rideId, otp, captain });
+  const user = await User.findById(updatedRide.user);
 
   // Notify user via socket
-  const user = await User.findById(updatedRide.user);
   if (user && user.socketId) {
     sendMessageToSocketId(user.socketId, {
       event: "ride-started",

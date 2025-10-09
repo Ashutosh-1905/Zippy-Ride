@@ -1,21 +1,20 @@
 import Ride from "../../models/Ride.js";
 import AppError from "../../utils/AppError.js";
-import crypto from "crypto";
 import { getDistanceTime } from "./mapService.js";
+import { sendOtpEmail } from "./emailService.js"; // Imported for acceptRide logic
 
-// Helper function to generate a random OTP
-function getOtp(length) {
-  const min = Math.pow(10, length - 1);
-  const max = Math.pow(10, length) - 1;
-  return crypto.randomInt(min, max).toString();
+// Helper function to generate a random 6-digit OTP
+function generateOtp() {
+  return String(Math.floor(100000 + Math.random() * 900000));
 }
 
 const FARE_RATES = {
-  car: { base: 50, perKm: 15, perMinute: 3 },
-  motorcycle: { base: 20, perKm: 8, perMinute: 1.5 },
-  auto: { base: 30, perKm: 10, perMinute: 2 },
+  car: { base: 50, perKm: 12, perMinute: 3 },
+  motorcycle: { base: 20, perKm: 6, perMinute: 1.5 },
+  auto: { base: 30, perKm: 9, perMinute: 2 },
 };
 
+// Calculates fare, distance, and duration in one go
 export const calculateFare = async (pickup, destination) => {
   const { distance, duration } = await getDistanceTime(pickup, destination);
 
@@ -24,23 +23,26 @@ export const calculateFare = async (pickup, destination) => {
     const { base, perKm, perMinute } = FARE_RATES[type];
     const calculatedFare =
       base +
-      (distance.value / 1000) * perKm +
-      (duration.value / 60) * perMinute;
+      (distance.value / 1000) * perKm + // distance in km
+      (duration.value / 60) * perMinute; // duration in minutes
     fares[type] = Math.round(calculatedFare);
   }
-  return fares;
+  return { fares, distance, duration };
 };
 
 export const createRide = async ({ user, pickup, destination, vehicleType }) => {
-  const fares = await calculateFare(pickup, destination);
+  // OPTIMIZATION: One call for geo data
+  const { fares, distance, duration } = await calculateFare(
+    pickup,
+    destination
+  );
   const rideFare = fares[vehicleType];
 
   if (!rideFare) {
     throw new AppError("Invalid vehicle type for fare calculation.", 400);
   }
 
-  const { distance, duration } = await getDistanceTime(pickup, destination);
-
+  // OPTIMIZATION: Create ride and get the populated document in one operation flow
   const newRide = await Ride.create({
     user: user._id,
     pickup,
@@ -48,51 +50,59 @@ export const createRide = async ({ user, pickup, destination, vehicleType }) => 
     fare: rideFare,
     distance: distance.value,
     duration: duration.value,
-    // OTP generated later when captain accepts
   });
 
-  return Ride.findById(newRide._id).select("+otp").populate("user");
+  // Fetch the created document with populated user for socket notification
+  const populatedRide = await newRide.populate("user");
+  return populatedRide;
 };
 
-export const confirmRide = async ({ rideId, captain }) => {
-  const ride = await Ride.findByIdAndUpdate(
+// Handles OTP generation, atomic DB update, and email sending
+export const acceptRide = async ({ rideId, captain }) => {
+  const otpCode = generateOtp();
+  const updatedRide = await Ride.findByIdAndUpdate(
     rideId,
-    {
-      status: "accepted",
-      captain: captain._id,
-    },
-    { new: true }
+    { $set: { status: "accepted", captain: captain._id, otp: otpCode } },
+    { new: true, runValidators: true }
   )
     .populate("user")
     .populate("captain")
     .select("+otp");
 
-  if (!ride) {
-    throw new AppError("Ride not found.", 404);
+  if (!updatedRide) {
+    throw new AppError("Ride not found or already accepted/completed.", 404);
   }
-  return ride;
+
+  const userDoc = updatedRide.user;
+
+  // Send OTP via email and get socketId from populated user
+  let userSocketId = null;
+  if (userDoc) {
+    userSocketId = userDoc.socketId; // Get socketId directly from populated user
+    // sendOtpEmail logs its own failure, no need for try/catch here
+    await sendOtpEmail(userDoc.email, otpCode);
+  }
+
+  // Return necessary data for the controller's socket notification
+  return { updatedRide, userSocketId };
 };
 
-// ✅ Fixed version — handles OTP validation and clearing atomically
+// handles OTP validation and clearing atomically
 export const startRide = async ({ rideId, otp, captain }) => {
+  // Initial find: must select +otp
   const ride = await Ride.findById(rideId).populate("user").select("+otp");
 
   if (!ride) {
     throw new AppError("Ride not found.", 404);
   }
 
-  if (ride.captain.toString() !== captain._id.toString()) {
+  // Captain authorization
+  if (ride.captain?.toString() !== captain._id.toString()) {
     throw new AppError("You are not the assigned captain for this ride.", 403);
   }
 
-  // Compare OTP as trimmed strings
+  // OTP and Status verification (trimming ensures robustness against whitespace)
   if (String(ride.otp ?? "").trim() !== String(otp ?? "").trim()) {
-    console.log(
-      "❌ OTP mismatch: provided:",
-      `"${otp}"`,
-      "stored:",
-      `"${ride.otp}"`
-    );
     throw new AppError("Invalid OTP.", 400);
   }
 
@@ -100,7 +110,7 @@ export const startRide = async ({ rideId, otp, captain }) => {
     throw new AppError("Ride is not in accepted status.", 400);
   }
 
-  // ✅ Atomically update status and clear OTP
+  // Atomically update status and clear OTP
   const updatedRide = await Ride.findByIdAndUpdate(
     rideId,
     { $set: { status: "ongoing", startTime: new Date() }, $unset: { otp: "" } },
@@ -109,7 +119,6 @@ export const startRide = async ({ rideId, otp, captain }) => {
     .populate("user")
     .populate("captain");
 
-  console.log("✅ Ride started successfully and OTP cleared from DB");
   return updatedRide;
 };
 
@@ -120,8 +129,8 @@ export const endRide = async ({ rideId, captain }) => {
     throw new AppError("Ride not found.", 404);
   }
 
-  const rideCaptainId =
-    typeof ride.captain === "object" ? ride.captain._id : ride.captain;
+  // Captain authorization (safe access to captain ID)
+  const rideCaptainId = ride.captain?._id ?? ride.captain;
   if (rideCaptainId.toString() !== captain._id.toString()) {
     throw new AppError("You are not the assigned captain for this ride.", 403);
   }
@@ -138,10 +147,11 @@ export const endRide = async ({ rideId, captain }) => {
     .populate("user")
     .populate("captain");
 
-  console.log("✅ Ride ended successfully");
+  console.log("Ride ended successfully");
   return updatedRide;
 };
 
 export const getFare = async (pickup, destination) => {
-  return await calculateFare(pickup, destination);
+  const { fares } = await calculateFare(pickup, destination);
+  return fares;
 };

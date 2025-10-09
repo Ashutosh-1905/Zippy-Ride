@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
 import config from '../../config/config.js';
 
+// Transporter initialization outside the function for efficiency
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -20,7 +21,8 @@ export const sendOtpEmail = async (toEmail, otp) => {
   try {
     await transporter.sendMail(mailOptions);
   } catch (error) {
-    console.error(`Failed to send OTP email to ${toEmail}:`, error);
-    throw new Error('Could not send OTP email at this time');
+    // OPTIMIZATION: Log the failure but DO NOT re-throw.
+    // Email failure should not halt the main flow (ride acceptance).
+    console.error(`CRITICAL: Failed to send OTP email to ${toEmail}:`, error);
   }
 };
