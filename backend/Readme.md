@@ -138,7 +138,7 @@ Server runs on the port defined in `.env` (`SERVER_PORT`).
     "firstName": "Ashu",
     "lastName": "Dhakad"
   },
-  "email": "ashu@gmail.com",
+  "email": "ashutoshdhakad7222@gmail.com",
   "password": "12345678"
 }
 ```
@@ -147,16 +147,13 @@ Server runs on the port defined in `.env` (`SERVER_PORT`).
 
 ```json
 {
-  "message": "User registered successfully",
-  "user": {
-    "id": "68d80abf0106a6fd7e7bc389",
-    "fullName": {
-      "firstName": "Ashu",
-      "lastName": "Dhakad"
+    "message": "User registered successfully",
+    "user": {
+        "id": "68e7bfdf8da1cc643dc652d0",
+        "fullName": "Ashu Dhakad",
+        "email": "ashutoshdhakad7222@gmail.com"
     },
-    "email": "ashu@gmail.com"
-  },
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZDgwYWJmMDEwNmE2ZmQ3ZTdiYzM4OSIsImlhdCI6MTc1ODk4ODk5MSwiZXhwIjoxNzU5NTkzNzkxfQ.Rg483RkqvYJDK6yoC05H8iOEXB1AZB8m1K3_aYNfKFc"
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZTdiZmRmOGRhMWNjNjQzZGM2NTJkMCIsImlhdCI6MTc2MDAxODQwMCwiZXhwIjoxNzYwNjIzMjAwfQ.gYYBtBk1FO2j4W73g9zvKzEOJWvuV-HNjWNYcdxqVHA"
 }
 ```
 
@@ -170,26 +167,23 @@ Server runs on the port defined in `.env` (`SERVER_PORT`).
 **Body:**
 
 ```json
-{
-  "email": "ashu@gmail.com",
-  "password": "12345678"
-}
+   {
+   "email":"ashutoshdhakad7222@gmail.com",
+    "password":"12345678"
+   }
 ```
 
 **Response:**
 
 ```json
 {
-  "message": "Logged in successfully",
-  "user": {
-    "id": "68d80abf0106a6fd7e7bc389",
-    "fullName": {
-      "firstName": "Ashu",
-      "lastName": "Dhakad"
+    "message": "Logged in successfully",
+    "user": {
+        "id": "68e7bfdf8da1cc643dc652d0",
+        "fullName": "Ashu Dhakad",
+        "email": "ashutoshdhakad7222@gmail.com"
     },
-    "email": "ashu@gmail.com"
-  },
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZDgwYWJmMDEwNmE2ZmQ3ZTdiYzM4OSIsImlhdCI6MTc1ODk4OTA0MiwiZXhwIjoxNzU5NTkzODQyfQ.-1BDftlSi4a5Y2Y4J6BJ-73vxf5GvIUJhtyq5F5spJc"
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZTdiZmRmOGRhMWNjNjQzZGM2NTJkMCIsImlhdCI6MTc2MDAxODczMSwiZXhwIjoxNzYwNjIzNTMxfQ.4Y8l0AD6KKIDmcXyKTZPVP-qbvMPOe4EBBMQYC3207Y"
 }
 ```
 
@@ -207,17 +201,20 @@ Server runs on the port defined in `.env` (`SERVER_PORT`).
 
 ```json
 {
-  "status": "success",
-  "data": {
-    "user": {
-      "id": "68d80abf0106a6fd7e7bc389",
-      "fullName": {
-        "firstName": "Ashu",
-        "lastName": "Dhakad"
-      },
-      "email": "ashu@gmail.com"
+    "status": "success",
+    "data": {
+        "user": {
+            "fullname": {
+                "firstName": "Ashu",
+                "lastName": "Dhakad"
+            },
+            "_id": "68e7bfdf8da1cc643dc652d0",
+            "email": "ashutoshdhakad7222@gmail.com",
+            "createdAt": "2025-10-09T13:59:59.987Z",
+            "updatedAt": "2025-10-09T13:59:59.987Z",
+            "__v": 0
+        }
     }
-  }
 }
 ```
 
