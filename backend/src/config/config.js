@@ -8,6 +8,8 @@ const _config = {
   frontendUrl: process.env.FRONTEND_URL,
   jwtSecret: process.env.JWT_SECRET || "change_this_secret",
   mapApi: process.env.MAP_API,
+  emailUser: process.env.EMAIL_USER,
+  emailPass: process.env.EMAIL_PASS,
 };
 
 const config = Object.freeze(_config);

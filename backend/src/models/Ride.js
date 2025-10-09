@@ -42,11 +42,11 @@ const rideSchema = new Schema({
     signature: {
         type: String
     },
-    otp: {
-        type: String,
-        required: [true, "OTP is required."],
-        select: false,
-    },
+otp: {
+    type: String,
+    select: false,
+    trim: true,
+},
 }, { timestamps: true });
 
 const Ride = model("Ride", rideSchema);

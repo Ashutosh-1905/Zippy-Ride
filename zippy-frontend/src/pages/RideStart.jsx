@@ -14,24 +14,44 @@ const RideStart = () => {
 
   if (!ride) return <p>No ride info found.</p>;
 
-  const startRide = async () => {
-    if (otp.length !== 6) {
-      setError("OTP must be 6 digits.");
-      return;
-    }
-    setError("");
-    try {
-      await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/api/v1/rides/start-ride`,
-        { rideId: ride._id, otp },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      alert("Ride started successfully!");
-      navigate("/captain-home");
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to start ride");
-    }
-  };
+  // const startRide = async () => {
+  //   if (otp.length !== 6) {
+  //     setError("OTP must be 6 digits.");
+  //     return;
+  //   }
+  //   setError("");
+  //   try {
+  //     await axios.post(
+  //       `${import.meta.env.VITE_BASE_URL}/api/v1/rides/start-ride`,
+  //       { rideId: ride._id, otp },
+  //       { headers: { Authorization: `Bearer ${token}` } }
+  //     );
+  //     alert("Ride started successfully!");
+  //     navigate("/captain-home");
+  //   } catch (err) {
+  //     setError(err.response?.data?.message || "Failed to start ride");
+  //   }
+  // };
+
+const startRide = async () => {
+  if (otp.trim().length !== 6) {
+    setError("OTP must be 6 digits.");
+    return;
+  }
+  setError("");
+  try {
+    await axios.post(
+      `${import.meta.env.VITE_BASE_URL}/api/v1/rides/start-ride`,
+      { rideId: ride._id, otp: otp.trim() }, // Always send trimmed!
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    alert("Ride started successfully!");
+    navigate("/captain-home");
+  } catch (err) {
+    setError(err.response?.data?.message || "Failed to start ride");
+  }
+};
+
 
   return (
     <div className="max-w-md mx-auto p-6">

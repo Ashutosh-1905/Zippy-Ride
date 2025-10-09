@@ -48,10 +48,9 @@ export const createRide = async ({ user, pickup, destination, vehicleType }) => 
     fare: rideFare,
     distance: distance.value,
     duration: duration.value,
-    otp: getOtp(6),
+    // OTP generated later when captain accepts
   });
 
-  // Return ride with OTP included explicitly
   return Ride.findById(newRide._id).select("+otp").populate("user");
 };
 
@@ -74,7 +73,7 @@ export const confirmRide = async ({ rideId, captain }) => {
   return ride;
 };
 
-// Captain OTP verification ke baad ride shuru karega
+// ✅ Fixed version — handles OTP validation and clearing atomically
 export const startRide = async ({ rideId, otp, captain }) => {
   const ride = await Ride.findById(rideId).populate("user").select("+otp");
 
@@ -82,13 +81,18 @@ export const startRide = async ({ rideId, otp, captain }) => {
     throw new AppError("Ride not found.", 404);
   }
 
-  // Captain match check
   if (ride.captain.toString() !== captain._id.toString()) {
     throw new AppError("You are not the assigned captain for this ride.", 403);
   }
 
-  // OTP verification
-  if (ride.otp !== otp) {
+  // Compare OTP as trimmed strings
+  if (String(ride.otp ?? "").trim() !== String(otp ?? "").trim()) {
+    console.log(
+      "❌ OTP mismatch: provided:",
+      `"${otp}"`,
+      "stored:",
+      `"${ride.otp}"`
+    );
     throw new AppError("Invalid OTP.", 400);
   }
 
@@ -96,15 +100,16 @@ export const startRide = async ({ rideId, otp, captain }) => {
     throw new AppError("Ride is not in accepted status.", 400);
   }
 
-  // Update ride status to 'ongoing'
+  // ✅ Atomically update status and clear OTP
   const updatedRide = await Ride.findByIdAndUpdate(
     rideId,
-    { status: "ongoing", startTime: new Date() },
+    { $set: { status: "ongoing", startTime: new Date() }, $unset: { otp: "" } },
     { new: true }
   )
     .populate("user")
     .populate("captain");
 
+  console.log("✅ Ride started successfully and OTP cleared from DB");
   return updatedRide;
 };
 
@@ -133,6 +138,7 @@ export const endRide = async ({ rideId, captain }) => {
     .populate("user")
     .populate("captain");
 
+  console.log("✅ Ride ended successfully");
   return updatedRide;
 };
 

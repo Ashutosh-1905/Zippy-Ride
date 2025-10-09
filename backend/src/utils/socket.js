@@ -21,9 +21,9 @@ export const initializeSocket = (server) => {
           await User.findByIdAndUpdate(userId, { socketId: socket.id });
           console.log(`User ${userId} joined with socketId ${socket.id}`);
         } else if (userType === "captain") {
-          await Captain.findByIdAndUpdate(userId, { 
-            socketId: socket.id, 
-            status: "active"
+          await Captain.findByIdAndUpdate(userId, {
+            socketId: socket.id,
+            status: "active",
           });
           console.log(`Captain ${userId} joined with socketId ${socket.id}`);
         }
@@ -43,7 +43,9 @@ export const initializeSocket = (server) => {
           if (userType === "user") {
             await User.findByIdAndUpdate(userId, { currentLocation: location });
           } else if (userType === "captain") {
-            await Captain.findByIdAndUpdate(userId, { currentLocation: location });
+            await Captain.findByIdAndUpdate(userId, {
+              currentLocation: location,
+            });
           }
         } else {
           console.log("Invalid location format in updateLocation", location);
@@ -59,7 +61,7 @@ export const initializeSocket = (server) => {
         await User.updateOne({ socketId: socket.id }, { $unset: { socketId: "" } });
         await Captain.updateOne(
           { socketId: socket.id },
-          { $unset: { socketId: "" }, status: "inactive" } 
+          { $unset: { socketId: "" }, status: "inactive" }
         );
       } catch (err) {
         console.error("Error clearing socketId on disconnect:", err);
