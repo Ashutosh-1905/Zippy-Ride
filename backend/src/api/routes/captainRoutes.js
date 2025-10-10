@@ -11,6 +11,6 @@ router.post("/register", validateCaptainRegistration, handleValidationErrors, re
 router.post("/login", validateCaptainLogin, handleValidationErrors, login);
 
 router.get("/profile", authenticateCaptain, profile);
-router.post("/logout", authenticateCaptain, logout);
+router.post("/logout", logout);
 
 export default router;

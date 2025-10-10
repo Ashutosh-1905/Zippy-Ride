@@ -13,8 +13,8 @@ A Node.js backend for a ride-sharing app with **user and captain authentication*
 5. [API Endpoints](#api-endpoints)
    - [Users API](#1-users-api-api-v1-users)
    - [Captains API](#2-captains-api-api-v1-captains)
-   - [Ride API](#3-ride-api-api-v1-rides)
    - [Map API](#4-map-api-api-v1-maps)
+   - [Ride API](#3-ride-api-api-v1-rides)
 6. [Authentication Flow](#authentication-flow)
 7. [Real-Time Updates with Socket.io](#real-time-updates-with-socketio)
 8. [Error Handling & Validation](#error-handling--validation)
@@ -42,6 +42,8 @@ Create a `.env` file in the root and configure:
 | `MONGODB_URI` | MongoDB connection string                   |
 | `NODE_ENV`    | Environment (`development` or `production`) |
 | `JWT_SECRET`  | Secret key for JWT signing                  |
+| `EMAIL_USER`  | gmail user like ashu@example.com            |
+| `EMAIL_PASS`  | gmail Password                              |
 | `MAP_API_KEY` | API key for map services                    |
 
 ---
@@ -76,6 +78,7 @@ Create a `.env` file in the root and configure:
     │   │   └── 📄 userRoutes.js
     │   └── 📁 services
     │       ├── 📄 captainService.js
+    │       ├── 📄 emailService.js
     │       ├── 📄 mapService.js
     │       ├── 📄 rideService.js
     │       └── 📄 userService.js
@@ -225,9 +228,6 @@ Server runs on the port defined in `.env` (`SERVER_PORT`).
 **Method:** POST
 **URL:** `http://localhost:3000/api/v1/users/logout`
 
-**Headers:**
-`Authorization: Bearer <JWT_TOKEN>`
-
 **Response:**
 
 ```json
@@ -363,9 +363,6 @@ Server runs on the port defined in `.env` (`SERVER_PORT`).
 **Method:** POST
 **URL:** `http://localhost:3000/api/v1/captains/logout`
 
-**Headers:**
-`Authorization: Bearer <JWT_TOKEN>`
-
 **Response:**
 
 ```json
@@ -376,192 +373,12 @@ Server runs on the port defined in `.env` (`SERVER_PORT`).
 
 ---
 
-## 3. Ride API (`/api/v1/rides`)
-
-### Request a Ride
-
-**Method:** POST
-**URL:** `http://localhost:3000/api/v1/rides/request-ride`
-
-**Headers:**
-`Authorization: Bearer <USER_JWT_TOKEN>`
-
-**Body:**
-
-```json
-{
-  "pickup": "Indore",
-  "destination": "Bhopal",
-  "vehicleType": "car"
-}
-```
-
-**Response:**
-
-```json
-{
-  "message": "Ride request submitted. Waiting for a captain...",
-  "ride": {
-    "id": "68d69930763ead0d89c3d0bb",
-    "user": {
-      "id": "68d68e6d763ead0d89c3d09d",
-      "fullName": "Ashu Dhakad",
-      "email": "ashu@gmail.com"
-    },
-    "pickup": "Indore",
-    "destination": "Bhopal",
-    "fare": 3260,
-    "status": "pending",
-    "duration": 8520.2,
-    "distance": 185603.9,
-    "otp": "602676",
-    "createdAt": "2025-09-26T13:46:24.544Z"
-  }
-}
-```
-
----
-
-### Get Fare Estimate
-
-**Method:** GET
-**URL:** `http://localhost:3000/api/v1/rides/get-fare?pickup=bhopal&destination=indore`
-
-**Headers:**
-`Authorization: Bearer <USER_JWT_TOKEN>`
-
-**Response:**
-
-```json
-{
-  "message": "Fare calculated successfully.",
-  "fares": {
-    "car": 3264,
-    "motorcycle": 1720,
-    "auto": 2173
-  }
-}
-```
-
----
-
-### Accept Ride (Captain)
-
-**Method:** POST
-**URL:** `http://localhost:3000/api/v1/rides/accept-ride`
-
-**Headers:**
-`Authorization: Bearer <CAPTAIN_JWT_TOKEN>`
-
-**Body:**
-
-```json
-{
-  "rideId": "68d69930763ead0d89c3d0bb"
-}
-```
-
-**Response:**
-
-```json
-{
-  "message": "Ride accepted successfully.",
-  "ride": {
-    "id": "68d69930763ead0d89c3d0bb",
-    "status": "accepted",
-    "captain": {
-      "id": "68d69008763ead0d89c3d0a8",
-      "fullName": "Ramesh Sharma",
-      "email": "ramesh@example.com",
-      "vehicle": {
-        "color": "Red",
-        "plate": "MH12AB1234",
-        "capacity": 4,
-        "vehicleType": "car"
-      }
-    }
-  }
-}
-```
-
----
-
-### Start Ride (Captain)
-
-**Method:** POST
-**URL:** `http://localhost:3000/api/v1/rides/start-ride`
-
-**Headers:**
-`Authorization: Bearer <CAPTAIN_JWT_TOKEN>`
-
-**Body:**
-
-```json
-{
-  "rideId": "68d69930763ead0d89c3d0bb",
-  "otp": "602676"
-}
-```
-
-**Response:**
-
-```json
-{
-  "message": "Ride started successfully.",
-  "ride": {
-    "id": "68d69930763ead0d89c3d0bb",
-    "status": "ongoing",
-    "captain": {
-      "id": "68d69008763ead0d89c3d0a8",
-      "fullName": "Ramesh Sharma"
-    }
-  }
-}
-```
-
----
-
-### End Ride (Captain)
-
-**Method:** POST
-**URL:** `http://localhost:3000/api/v1/rides/end-ride`
-
-**Headers:**
-`Authorization: Bearer <CAPTAIN_JWT_TOKEN>`
-
-**Body:**
-
-```json
-{
-  "rideId": "68d69930763ead0d89c3d0bb"
-}
-```
-
-**Response:**
-
-```json
-{
-  "message": "Ride ended successfully.",
-  "ride": {
-    "id": "68d69930763ead0d89c3d0bb",
-    "status": "completed",
-    "fare": 3260,
-    "captain": {
-      "id": "68d69008763ead0d89c3d0a8",
-      "fullName": "Ramesh Sharma"
-    }
-  }
-}
-```
-
----
-
-## 4. Map API (`/api/v1/maps`)
+## 3. Map API (`/api/v1/maps`)
 
 ### Get Coordinates
 
 **Method:** GET
-**URL:** `http://localhost:3000/api/v1/maps/get-coordinates?address=1600 Amphitheatre Parkway`
+**URL:** `http://localhost:3000/maps/get-coordinates?address=bhopal madhya pradesh`
 
 **Headers:**
 `Authorization: Bearer <JWT_TOKEN>`
@@ -570,11 +387,12 @@ Server runs on the port defined in `.env` (`SERVER_PORT`).
 
 ```json
 {
-  "address": "1600 Amphitheatre Parkway",
-  "coordinates": {
-    "lat": 37.422,
-    "lng": -122.084
-  }
+    "status": "success",
+    "data": {
+        "lat": 23.2584857,
+        "lon": 77.401989,
+        "displayName": "Bhopal, Huzur Tahsil, Bhopal, Madhya Pradesh, 462001, India"
+    }
 }
 ```
 
@@ -583,19 +401,24 @@ Server runs on the port defined in `.env` (`SERVER_PORT`).
 ### Get Distance and Duration
 
 **Method:** GET
-**URL:** `http://localhost:3000/api/v1/maps/get-distance-time?origin=Indore&destination=Bhopal`
-
-**Headers:**
-`Authorization: Bearer <JWT_TOKEN>`
+**URL:** `http://localhost:3000/api/v1/maps/get-distance-time?origin=bhopal&destination=indore`
 
 **Response:**
 
 ```json
 {
-  "origin": "Indore",
-  "destination": "Bhopal",
-  "distance": 185603.9,
-  "duration": 8520.2
+    "status": "success",
+    "data": {
+        "status": "OK",
+        "distance": {
+            "text": "185.95 km",
+            "value": 185954.2
+        },
+        "duration": {
+            "text": "2 hours 21 mins",
+            "value": 8499.2
+        }
+    }
 }
 ```
 
@@ -621,8 +444,311 @@ Server runs on the port defined in `.env` (`SERVER_PORT`).
   ]
 }
 ```
+---
+## 4. Ride API (`/api/v1/rides`)
+
+### Request a Ride
+
+**Method:** POST
+**URL:** `http://localhost:3000/api/v1/rides/request-ride`
+
+**Headers:**
+`Authorization: Bearer <USER_JWT_TOKEN>`
+
+**Body:**
+
+```json
+{
+    "pickup": "Bhopal",
+    "destination": "Indore",
+    "vehicleType": "car" 
+}
+```
+
+**Response:**
+
+```json
+{
+    "message": "Ride requested successfully. Captains nearby have been notified to accept your request.",
+    "ride": {
+        "user": {
+            "fullname": {
+                "firstName": "Ashu",
+                "lastName": "Dhakad"
+            },
+            "_id": "68e7bfdf8da1cc643dc652d0",
+            "email": "ashutoshdhakad7222@gmail.com",
+            "createdAt": "2025-10-09T13:59:59.987Z",
+            "updatedAt": "2025-10-09T13:59:59.987Z",
+            "__v": 0
+        },
+        "pickup": "Bhopal",
+        "destination": "Indore",
+        "fare": 2706,
+        "status": "pending",
+        "duration": 8499.2,
+        "distance": 185954.2,
+        "_id": "68e86a22ee6e7dda68f6ac49",
+        "createdAt": "2025-10-10T02:06:26.138Z",
+        "updatedAt": "2025-10-10T02:06:26.138Z",
+        "__v": 0
+    }
+}
+```
 
 ---
+
+### Get Fare Estimate
+
+**Method:** GET
+**URL:** `http://localhost:3000/api/v1/rides/get-fare?pickup=bhopal&destination=indore`
+
+**Headers:**
+`Authorization: Bearer <USER_JWT_TOKEN>`
+
+**Response:**
+
+```json
+{
+    "message": "Fare calculated successfully.",
+    "fares": {
+        "car": 2706,
+        "motorcycle": 1348,
+        "auto": 1987
+    }
+}
+```
+
+---
+
+### Accept Ride (Captain)
+
+**Method:** POST
+**URL:** `http://localhost:3000/api/v1/rides/accept-ride`
+
+**Headers:**
+`Authorization: Bearer <CAPTAIN_JWT_TOKEN>`
+
+**Body:**
+
+```json
+{
+  "rideId": "68e86a22ee6e7dda68f6ac49"
+}
+
+```
+
+**Response:**
+
+```json
+{
+    "message": "Ride accepted successfully.",
+    "ride": {
+        "_id": "68e86a22ee6e7dda68f6ac49",
+        "user": {
+            "fullname": {
+                "firstName": "Ashu",
+                "lastName": "Dhakad"
+            },
+            "_id": "68e7bfdf8da1cc643dc652d0",
+            "email": "ashutoshdhakad7222@gmail.com",
+            "createdAt": "2025-10-09T13:59:59.987Z",
+            "updatedAt": "2025-10-09T13:59:59.987Z",
+            "__v": 0
+        },
+        "pickup": "Bhopal",
+        "destination": "Indore",
+        "fare": 2706,
+        "status": "accepted",
+        "duration": 8499.2,
+        "distance": 185954.2,
+        "createdAt": "2025-10-10T02:06:26.138Z",
+        "updatedAt": "2025-10-10T02:11:24.517Z",
+        "__v": 0,
+        "captain": {
+            "fullname": {
+                "firstName": "Ramesh",
+                "lastName": "Sharma"
+            },
+            "vehicle": {
+                "color": "Red",
+                "plate": "MH12AB1234",
+                "capacity": 4,
+                "vehicleType": "car"
+            },
+            "currentLocation": {
+                "type": "Point",
+                "coordinates": [
+                    77.4126,
+                    23.2599
+                ]
+            },
+            "_id": "68e7c42fa044f5433c9cd91f",
+            "email": "ramesh@example.com",
+            "status": "inactive",
+            "createdAt": "2025-10-09T14:18:23.246Z",
+            "updatedAt": "2025-10-09T14:18:23.246Z",
+            "__v": 0
+        },
+        "otp": "573089"
+    }
+}
+```
+
+---
+
+### Start Ride (Captain)
+
+**Method:** POST
+**URL:** `http://localhost:3000/api/v1/rides/start-ride`
+
+**Headers:**
+`Authorization: Bearer <CAPTAIN_JWT_TOKEN>`
+
+**Body:**
+
+```json
+{
+ "rideId": "68e86a22ee6e7dda68f6ac49",
+  "otp": "573089"
+}
+```
+
+**Response:**
+
+```json
+{
+    "message": "Ride started successfully.",
+    "ride": {
+        "_id": "68e86a22ee6e7dda68f6ac49",
+        "user": {
+            "fullname": {
+                "firstName": "Ashu",
+                "lastName": "Dhakad"
+            },
+            "_id": "68e7bfdf8da1cc643dc652d0",
+            "email": "ashutoshdhakad7222@gmail.com",
+            "createdAt": "2025-10-09T13:59:59.987Z",
+            "updatedAt": "2025-10-09T13:59:59.987Z",
+            "__v": 0
+        },
+        "pickup": "Bhopal",
+        "destination": "Indore",
+        "fare": 2706,
+        "status": "ongoing",
+        "duration": 8499.2,
+        "distance": 185954.2,
+        "createdAt": "2025-10-10T02:06:26.138Z",
+        "updatedAt": "2025-10-10T02:15:43.167Z",
+        "__v": 0,
+        "captain": {
+            "fullname": {
+                "firstName": "Ramesh",
+                "lastName": "Sharma"
+            },
+            "vehicle": {
+                "color": "Red",
+                "plate": "MH12AB1234",
+                "capacity": 4,
+                "vehicleType": "car"
+            },
+            "currentLocation": {
+                "type": "Point",
+                "coordinates": [
+                    77.4126,
+                    23.2599
+                ]
+            },
+            "_id": "68e7c42fa044f5433c9cd91f",
+            "email": "ramesh@example.com",
+            "status": "inactive",
+            "createdAt": "2025-10-09T14:18:23.246Z",
+            "updatedAt": "2025-10-09T14:18:23.246Z",
+            "__v": 0
+        }
+    }
+}
+```
+
+---
+
+### End Ride (Captain)
+
+**Method:** POST
+**URL:** `http://localhost:3000/api/v1/rides/end-ride`
+
+**Headers:**
+`Authorization: Bearer <CAPTAIN_JWT_TOKEN>`
+
+**Body:**
+
+```json
+{
+    "rideId": "68e86a22ee6e7dda68f6ac49"
+}
+```
+
+**Response:**
+
+```json
+{
+    "message": "Ride ended successfully.",
+    "ride": {
+        "_id": "68e86a22ee6e7dda68f6ac49",
+        "user": {
+            "fullname": {
+                "firstName": "Ashu",
+                "lastName": "Dhakad"
+            },
+            "_id": "68e7bfdf8da1cc643dc652d0",
+            "email": "ashutoshdhakad7222@gmail.com",
+            "createdAt": "2025-10-09T13:59:59.987Z",
+            "updatedAt": "2025-10-09T13:59:59.987Z",
+            "__v": 0
+        },
+        "pickup": "Bhopal",
+        "destination": "Indore",
+        "fare": 2706,
+        "status": "completed",
+        "duration": 8499.2,
+        "distance": 185954.2,
+        "createdAt": "2025-10-10T02:06:26.138Z",
+        "updatedAt": "2025-10-10T02:17:46.959Z",
+        "__v": 0,
+        "captain": {
+            "fullname": {
+                "firstName": "Ramesh",
+                "lastName": "Sharma"
+            },
+            "vehicle": {
+                "color": "Red",
+                "plate": "MH12AB1234",
+                "capacity": 4,
+                "vehicleType": "car"
+            },
+            "currentLocation": {
+                "type": "Point",
+                "coordinates": [
+                    77.4126,
+                    23.2599
+                ]
+            },
+            "_id": "68e7c42fa044f5433c9cd91f",
+            "email": "ramesh@example.com",
+            "status": "inactive",
+            "createdAt": "2025-10-09T14:18:23.246Z",
+            "updatedAt": "2025-10-09T14:18:23.246Z",
+            "__v": 0
+        }
+    }
+}
+```
+
+---
+
+---
+
+
 
 ## Authentication Flow
 
