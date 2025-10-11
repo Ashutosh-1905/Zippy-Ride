@@ -16,7 +16,9 @@ import AppError from "../../utils/AppError.js";
 import User from "../../models/User.js"; // Needed for start/end ride user lookup
 
 // Constant for captain search radius
-const CAPTAIN_SEARCH_RADIUS_KM = 10;
+// const CAPTAIN_SEARCH_RADIUS_KM = 10;
+const CAPTAIN_SEARCH_RADIUS_KM = 50000;  // just for testing purpose 
+
 
 // User requests a new ride
 export const requestRide = catchAsync(async (req, res, next) => {

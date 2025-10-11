@@ -1,7 +1,7 @@
 import Ride from "../../models/Ride.js";
 import AppError from "../../utils/AppError.js";
 import { getDistanceTime } from "./mapService.js";
-import { sendOtpEmail } from "./emailService.js"; // Imported for acceptRide logic
+import { sendOtpEmail } from "./emailService.js";
 
 // Helper function to generate a random 6-digit OTP
 function generateOtp() {
