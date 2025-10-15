@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getUserProfile } from "../api/userApi";
+import { getUserProfile } from "../api/auth/userApi";
 import { UserDataContext } from "../context/UserContext";
 
 const UserProtectedWrapper = ({ children }) => {

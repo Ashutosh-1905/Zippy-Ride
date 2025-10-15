@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginCaptain } from "../api/captainApi";
+import { loginCaptain } from "../api/auth/captainApi.js";
 import { CaptainDataContext } from "../context/CaptainContext.jsx";
 
 const CaptainLogin = () => {

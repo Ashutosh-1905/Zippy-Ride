@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { registerUser } from "../api/userApi";
+import { registerUser } from "../api/auth/userApi";
 import { UserDataContext } from "../context/UserContext";
 
 const UserSignup = () => {

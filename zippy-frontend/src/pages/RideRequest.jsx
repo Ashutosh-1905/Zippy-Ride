@@ -1,9 +1,13 @@
 import React, { useState, useEffect, useContext } from "react";
 import LocationSearchInput from "../components/LocationSearchInput";
 import VehicleSelector from "../components/VehicleSelector";
-import { getFareEstimate, requestRide } from "../api/rideApi";
+import { getFareEstimate, requestRide } from "../api/rides/rideApi";
 import { UserDataContext } from "../context/UserContext";
 import { useSocket } from "../context/SocketContext";
+import Loader from "../components/Loader";
+import Notification from "../components/Notification";
+import FareDisplay from "../components/FareDisplay";
+import RideStatus from "../components/RideStatus";
 
 const RideRequest = () => {
   const { token } = useContext(UserDataContext);
@@ -15,25 +19,30 @@ const RideRequest = () => {
   const [fare, setFare] = useState(null);
   const [loadingFare, setLoadingFare] = useState(false);
 
-  // -- Ride metadata --
+  // Ride metadata and status
   const [ride, setRide] = useState(null);
   const [otp, setOtp] = useState("");
-  const [status, setStatus] = useState(""); // "requested" | "accepted" | "started"
+  const [status, setStatus] = useState(""); // ride status: requested, accepted, started
   const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("info");
 
   useEffect(() => {
     if (!pickup || !destination) {
       setFare(null);
       return;
     }
+
+    setLoadingFare(true);
+    setMessage("");
+
     const fetchFare = async () => {
-      setLoadingFare(true);
       try {
         const res = await getFareEstimate(pickup, destination, token);
         setFare(res.data.fares || res.data);
       } catch {
         setFare(null);
-        setMessage("Error loading fare");
+        setMessageType("error");
+        setMessage("Error loading fare estimate");
       } finally {
         setLoadingFare(false);
       }
@@ -41,21 +50,22 @@ const RideRequest = () => {
     fetchFare();
   }, [pickup, destination, token]);
 
-  // 1️⃣ Listen for ride-accepted and ride-started event from backend/captain
   useEffect(() => {
     if (!socket) return;
 
-    const handleAccepted = r => {
-      setRide(r); // update ride object
+    const handleAccepted = (r) => {
+      setRide(r);
       setStatus("accepted");
-      setOtp(r.otp); // still show OTP
-      setMessage("Captain accepted your ride! Please give the OTP below to your captain.");
+      setOtp(r.otp);
+      setMessageType("success");
+      setMessage("Captain accepted your ride! Please show OTP to your captain.");
     };
 
-    const handleStarted = r => {
+    const handleStarted = (r) => {
       setRide(r);
       setStatus("started");
-      setOtp(""); // clear OTP for privacy
+      setOtp("");
+      setMessageType("info");
       setMessage("Your ride has started!");
     };
 
@@ -68,18 +78,27 @@ const RideRequest = () => {
     };
   }, [socket]);
 
-  // 2️⃣ When user submits ride, save OTP and status
   const submitRideRequest = async () => {
     setMessage("");
+    setMessageType("info");
     setOtp("");
     setStatus("");
+
+    if (!pickup.trim() || !destination.trim()) {
+      setMessageType("error");
+      setMessage("Pickup and destination locations are required");
+      return;
+    }
+
     try {
       const res = await requestRide({ pickup, destination, vehicleType }, token);
       setRide(res.data.ride);
-      setOtp(res.data.ride.otp); // immediate backend OTP
+      setOtp(res.data.ride.otp);
       setStatus("requested");
-      setMessage("Ride requested! Give this OTP to your captain when they arrive.");
+      setMessageType("success");
+      setMessage("Ride requested! Share OTP with your captain when they arrive.");
     } catch {
+      setMessageType("error");
       setMessage("Failed to request ride, please try again.");
     }
   };
@@ -89,17 +108,15 @@ const RideRequest = () => {
       <h2 className="text-2xl font-bold mb-2">Zippy Ride</h2>
 
       <LocationSearchInput label="Pickup Location" value={pickup} onChange={setPickup} />
-      <div className="my-5" />
+      <div className="my-5"></div>
       <LocationSearchInput label="Destination" value={destination} onChange={setDestination} />
       <VehicleSelector selected={vehicleType} onSelect={setVehicleType} />
 
       <div className="mt-5">
         {loadingFare ? (
-          <p>Loading fare estimate...</p>
-        ) : fare && fare[vehicleType] !== undefined ? (
-          <p className="text-lg font-semibold">Estimated Fare: ₹{fare[vehicleType]}</p>
+          <Loader text="Loading fare estimate..." />
         ) : (
-          <p className="text-gray-500">Fare will be shown here</p>
+          <FareDisplay fare={fare} vehicleType={vehicleType} loading={loadingFare} />
         )}
       </div>
 
@@ -111,36 +128,9 @@ const RideRequest = () => {
         Request Ride
       </button>
 
-      {/* -- OTP and status box -- */}
-      {otp && (status === "requested" || status === "accepted") && (
-        <div className="mt-6 bg-yellow-50 border border-yellow-300 px-3 py-3 rounded">
-          <p className="font-semibold mb-1 text-yellow-900">
-            Your ride OTP: <span className="text-xl">{otp}</span>
-          </p>
-          <p className="text-sm text-yellow-700">
-            Share this OTP with your captain <strong>only when they arrive</strong>.
-          </p>
-        </div>
-      )}
+      <RideStatus status={status} otp={otp} />
 
-      {/* Ride accepted (blue status shown above, still shows OTP) */}
-      {status === "accepted" && (
-        <div className="mt-6 bg-blue-50 border border-blue-300 px-3 py-3 rounded">
-          <p className="font-semibold mb-1 text-blue-900">
-            Captain has accepted your ride! Please provide the OTP above.
-          </p>
-        </div>
-      )}
-
-      {/* Ride started clear status -- no OTP */}
-      {status === "started" && (
-        <div className="mt-6 bg-green-50 border border-green-300 px-3 py-3 rounded">
-          <p className="text-xl font-bold text-green-900">Your ride has started!</p>
-        </div>
-      )}
-
-      {/* Any other general messages */}
-      {message && <p className="mt-4 text-center text-blue-600">{message}</p>}
+      {message && <Notification type={messageType} message={message} />}
     </div>
   );
 };

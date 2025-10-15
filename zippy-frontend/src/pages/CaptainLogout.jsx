@@ -1,6 +1,6 @@
 import React, { useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { logoutCaptain } from "../api/captainApi";
+import { logoutCaptain } from "../api/auth/captainApi";
 import { CaptainDataContext } from "../context/CaptainContext";
 
 const CaptainLogout = () => {

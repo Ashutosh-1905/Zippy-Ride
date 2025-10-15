@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { registerCaptain } from "../api/captainApi";
+import { registerCaptain } from "../api/auth/captainApi";
 import { useNavigate } from "react-router-dom";
 import { CaptainDataContext } from "../context/CaptainContext";
 

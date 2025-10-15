@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import LocationSearchInput from "../components/LocationSearchInput";
 import VehicleSelector from "../components/VehicleSelector";
-import { getFareEstimate, requestRide } from "../api/rideApi";
+import { getFareEstimate, requestRide } from "../api/rides/rideApi";
 import { UserDataContext } from "../context/UserContext";
 
 const Home = () => {

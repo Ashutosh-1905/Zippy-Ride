@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { loginUser } from "../api/userApi";
+import { loginUser } from "../api/auth/userApi";
 import { UserDataContext } from "../context/UserContext";
 
 const UserLogin = () => {
